@@ -12,6 +12,14 @@
       padding: 0;
       box-sizing: border-box;
       text-align: center;
+      user-select: none;
+    }
+
+    label {
+      color: #fff;
+      margin-left: 1em;
+      cursor: pointer;
+      font-size: 2ch;
     }
 
     #background {
@@ -81,6 +89,11 @@
       border-radius: 1em;
       font-size: 2em;
     }
+
+    input[type='checkbox'] {
+      cursor: pointer;
+      transform: scale(1.5);
+    }
   </style>
 </head>
 
@@ -101,6 +114,7 @@
       <h1>医学影像识别</h1>
       <input placeholder="请输入账号">
       <input type="password" placeholder="请输入密码">
+      <div><input type="checkbox" id="checkbox"><label for="checkbox">记住密码</label></div>
       <button id="login">登录</button>
     </div>
   </div>
@@ -110,7 +124,8 @@
 <script>
   const login = document.querySelector('#login')
   const id = document.querySelector('input')
-  const pwd = document.querySelector('input[type=password]')
+  const pwd = document.querySelector('input[type="password"]')
+  const remember = document.querySelector('input[type="checkbox"]')
   const toggle = params => {
     let p = document.createElement("b")
     p.innerHTML = params
@@ -132,11 +147,11 @@
       id.focus();
       return;
     }
-    if (checkString(id.value, /^\d+$/)) {
-      toggle('账号只能为数字');
-      id.focus();
-      return;
-    }
+    // if (checkString(id.value, /^\d+$/)) {
+    //   toggle('账号只能为数字');
+    //   id.focus();
+    //   return;
+    // }
     if (!pwd.value) {
       toggle('密码不能为空');
       pwd.focus();
@@ -154,7 +169,8 @@
       }
       , body: JSON.stringify({
         id: id.value,
-        pwd: pwd.value
+        pwd: pwd.value,
+        remember: remember.checked ? 1 : 0
       })
     }).then(e => {
       if (e.status !== 200) {
