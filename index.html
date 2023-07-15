@@ -174,7 +174,7 @@
       cursor: pointer;
     }
 
-    #side>ul>li:nth-child(1) {
+    #side>ul>li:first-child {
       display: none;
     }
 
@@ -190,6 +190,10 @@
     .result>span {
       color: darkred;
     }
+
+    #result {
+      display: none;
+    }
   </style>
 </head>
 
@@ -199,24 +203,26 @@
     <!-- <div class='frame'> -->
     <img id="previewImage">
     <div id="fileButton"><input type="file">
-      <!-- <br>
-      <label for="fileButton">
+      <br>
+      <label for="fileButton" id="tip">
         请上传zip压缩文件
-      </label> -->
+      </label>
       <br>
       <button disabled><span id="upload">上传</span>
         <div id="circleParent">
           <div id='circle'></div>
       </button>
-      <hr>
-      <p class="result">识别结果</p>
-      <!-- <img src="1.png"><img src="2.png"><img src="3.png"> -->
-      <hr>
-      <p class="result">
+      <div id="result">
+        <hr>
+        <p class="result">识别结果</p>
+      </div>
+
+      <!-- <hr> -->
+      <!-- <p class="result">
         诊断推测: &nbsp;&nbsp;<span>94</span>% 患有<strong>阿尔茨海默病</strong>, <span>5</span>% 患有<strong>帕金森病</strong>,
         <span>1</span>%
         患有<strong>脑瘫</strong>
-      </p>
+      </p> -->
     </div>
     <!-- </div> -->
     <!-- <div class='frame'> -->
@@ -230,107 +236,133 @@
   </span>
   <div id="side" style="width: 0px;">
     <h2>
-      欢迎你,<span></span>
+      欢迎你,<br><span></span>
     </h2>
     <ul>
       <li>管理账户</li>
+      <li>历史记录</li>
       <li>退出登录</li>
     </ul>
 
   </div>
 </body>
 <script>
-  onload = function () {
-    const toggle = params => {
-      let p = document.createElement("b")
-      p.innerHTML = params
-      document.body.appendChild(p)
-      setTimeout(() => {
-        p.remove()
-      }, 2e3)
-      p.onclick = () => p.remove()
+  // onload = function () {
+  if (localStorage.permission == 0)
+    document.querySelector('#side>ul>li:first-child').style.display = 'block'
+  document.querySelector("#side > h2 > span").innerText = localStorage.username;
+  const toggle = params => {
+    let p = document.createElement("b")
+    p.innerHTML = params
+    document.body.appendChild(p)
+    setTimeout(() => {
+      p.remove()
+    }, 2e3)
+    p.onclick = () => p.remove()
+  }
+  const tip = document.getElementById("tip")
+  const button = document.querySelector('button')
+  const circle = document.getElementById('circle')
+  const circleParent = document.getElementById('circleParent')
+  const previewImage = document.getElementById('previewImage');
+  const fileInput = document.querySelector('input[type="file"]')
+  const upload = document.getElementById('upload');
+  const sideLi = document.querySelectorAll('#side>ul>li')
+  const result = document.getElementById('result')
+  // const frame = document.getElementsByClassName('frame')
+  button.onclick = function () {
+    result.style.display = 'none'
+    if (!fileInput.value) {
+      toggle('请先选择文件');
+      return
     }
-    const button = document.querySelector('button')
-    const circle = document.getElementById('circle')
-    const circleParent = document.getElementById('circleParent')
-    const previewImage = document.getElementById('previewImage');
-    const fileInput = document.querySelector('input[type="file"]')
-    const upload = document.getElementById('upload');
-    // const frame = document.getElementsByClassName('frame')
-    button.onclick = function () {
-      circleParent.style.display = "inline-block";
-      upload.style.display = "none";
-      button.disabled = true;
-      // frame[1].style.minHeight = getComputedStyle(frame[0]).height
-      // circle.style.width = circle.style.height = getComputedStyle(previewImage).height
+    circleParent.style.display = "inline-block";
+    upload.style.display = "none";
+    button.disabled = true;
+    // frame[1].style.minHeight = getComputedStyle(frame[0]).height
+    // circle.style.width = circle.style.height = getComputedStyle(previewImage).height
+    // const reader = new FileReader();
+    // reader.readAsDataURL(file);
+    const formData = new FormData()
+    formData.append('file', fileInput.files[0])
+    // let xhr = new XMLHttpRequest()
+    // xhr.withCredentials = true
+    // xhr.open('POST', 'http://localhost:8000')
+    // xhr.setRequestHeader('Access-Control-Allow-Origin','*')
+    // xhr.setRequestHeader('Content-Type','text/plain')
+    // xhr.send(formData)
+    // xhr.onreadystatechange = function() {
+    //   if (xhr.readyState === 4 && xhr.status === 200) {
+    //     console.log(xhr.responseText)
+    //   }
+    // }
+    fetch('api/file', {
+      method: "POST",
+      body: formData
+    }).then(e => e.json()).then(e => {
+      // document.querySelector('div').innerText = e;
+      // button.disabled = false;
+      toggle('上传成功');
+      result.style.display = 'block';
+      console.log(e);
+      for (let i of e.result) {
+        const img = document.createElement("img");
+        img.src = i
+        result.appendChild(img)
+      }
+    }).catch(e => {
+      // button.disabled = false;
+      toggle('对不起, 上传失败')
+      console.log(e);
+    }).then(() => {
+      circleParent.style.display = "none";
+      upload.style.display = "inline-block";
+      button.disabled = false;
+      // fileInput.value = null;
+      tip.style.display = "inline-block";
+    })
+  }
+
+  fileInput.onchange = function () {
+    const file = fileInput.files[0]
+    if (file && file.name.endsWith('.zip') && file.type === 'application/x-zip-compressed') {
       // const reader = new FileReader();
       // reader.readAsDataURL(file);
-      const formData = new FormData()
-      formData.append('file', fileInput.files[0])
-      // let xhr = new XMLHttpRequest()
-      // xhr.withCredentials = true
-      // xhr.open('POST', 'http://localhost:8000')
-      // xhr.setRequestHeader('Access-Control-Allow-Origin','*')
-      // xhr.setRequestHeader('Content-Type','text/plain')
-      // xhr.send(formData)
-      // xhr.onreadystatechange = function() {
-      //   if (xhr.readyState === 4 && xhr.status === 200) {
-      //     console.log(xhr.responseText)
-      //   }
+      // reader.onload = () => {
+      //   previewImage.src = reader.result;
+      //   button.disabled = false;
+      //   previewImage.style.display = 'inline-block'
+      button.disabled = false;
+      tip.style.display = "none";
       // }
-      fetch('api/file', {
-        method: "POST",
-        body: formData
-      }).then(e => e.text()).then(e => {
-        // document.querySelector('div').innerText = e;
-        // button.disabled = false;
-        console.log(e);
-      }).catch(e => {
-        // button.disabled = false;
-        toggle('对不起, 上传失败')
-        console.log(e);
-      }).then(() => {
-        circleParent.style.display = "none";
-        upload.style.display = "inline-block";
-        button.disabled = false;
-        fileInput.value = null
-      })
-    }
-
-    fileInput.onchange = function () {
-      const file = fileInput.files[0]
-      if (file && file.name.endsWith('.zip') && file.type === 'application/x-zip-compressed') {
-        // const reader = new FileReader();
-        // reader.readAsDataURL(file);
-        // reader.onload = () => {
-        //   previewImage.src = reader.result;
-        //   button.disabled = false;
-        //   previewImage.style.display = 'inline-block'
-        button.disabled = false;
-        // }
-      } else {
-        toggle('对不起,你上传的不是zip压缩文件');
-        button.disabled = true;
-        previewImage.style.display = 'none'
-        fileInput.value = null
-      }
-    }
-    const side = document.getElementById('side')
-    document.getElementById('sideButton').onclick = function () {
-      // side.style.display = side.style.display === 'none' ? 'block' : 'none'
-      side.style.width = side.style.width === '0px' ? '200px' : '0px'
-    }
-    document.querySelector("#side > ul > li:nth-child(1)").onclick = function () {
-      open('manager.html', '_self')
-    }
-    document.querySelector("#side > ul > li:nth-child(2)").onclick = function () {
-      if (confirm("确定要退出登录吗?")) {
-        document.cookie = "userId=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-        document.cookie = "pwd=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-        open('login.html', '_self')
-      }
+    } else {
+      toggle('对不起,你上传的不是zip压缩文件');
+      // button.disabled = true;
+      // previewImage.style.display = 'none'
+      fileInput.value = null;
+      tip.style.display = "inline-block";
     }
   }
+  const side = document.getElementById('side')
+  document.getElementById('sideButton').onclick = function () {
+    // side.style.display = side.style.display === 'none' ? 'block' : 'none'
+    side.style.width = side.style.width === '0px' ? '200px' : '0px'
+  }
+  sideLi[0].onclick = function () {
+    open('manager.html', '_self')
+  }
+  sideLi[2].onclick = function () {
+    if (confirm("确定要退出登录吗?")) {
+      document.cookie = "userId=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+      document.cookie = "pwd=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+      localStorage.clear();
+      open('login.html', '_self')
+    }
+  }
+  sideLi[1].onclick = function () {
+    open('history.html', '_self')
+  }
+  // }
 
 </script>
 
