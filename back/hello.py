@@ -2,7 +2,7 @@
 Author: Ruan 110537579+MrRuanCoder@users.noreply.github.com
 Date: 2023-07-14 20:13:20
 LastEditors: Ruan 110537579+MrRuanCoder@users.noreply.github.com
-LastEditTime: 2023-07-15 13:51:38
+LastEditTime: 2023-07-15 15:44:09
 FilePath: \medical_imaging_recognition_in_enterprise_training\back\hello.py
 Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 '''
@@ -16,6 +16,11 @@ from learnSQL import *
 from learnSQL import db
 import os
 from datetime import timedelta
+from imageApi import *
+from flask import render_template
+
+from flask_login import login_required
+
 
 app = Flask(__name__)
 # Set the secret key to some random bytes. Keep this really secret!
@@ -32,12 +37,12 @@ app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=7) # 配置7天有效
 
 @app.route('/')
 def mainPage():
-    username = session.get('username')
-    if username is None:
-        return app.send_static_file('index.html')    
-    else:
-        return app.send_static_file("login.html")
-
+    # username = session.get('username')
+    # if username is None:
+    #     return render_template('index.html')    
+    # else:
+    #     # return app.send_static_file("login.html")
+        return render_template('login.html')
 
 #清空session,退出登录
 @app.route('/logout', methods=['GET'])
@@ -45,6 +50,14 @@ def logout():
     session.clear()
     return jsonify(msg='退出成功')    
 
+@app.route('/', methods=['GET', 'POST'])
+@login_required
+def home():
+    if not session.get('logged_in'):
+        return render_template('login.html')
+    else:
+        return render_template('index.html')
+        
 
 @app.route('/api', methods=['POST'])
 def login():
@@ -67,8 +80,9 @@ def login():
         session['username'] = username
         session["id"] = user.id
         session["permission"] = permission
+        session['logged_in'] = True
             # session['password'] = password
-        return jsonify(msg='登录成功')
+        return home()
     
     except Exception as e:
         print(e)
@@ -105,6 +119,12 @@ def user_update0():
 def user_delete0():
     return user_delete()
 
+@app.route('/api/file', methods=['POST'])
+def zipImage1_():
+    return zipImage1()
+
+
+##########################################################################################################
 if __name__ == '__main__':
     db.init_app(app)
     with app.app_context():
