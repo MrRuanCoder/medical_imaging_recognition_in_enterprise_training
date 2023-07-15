@@ -1,37 +1,109 @@
-# Medical_imaging_Recognition_in_Enterprise_Training
+| 请求方式 | 说明                           | RequestBody                                                  | url路径               | 使用flask中的session cookie | ResponseBody                                                 | 备注                                                         |
+| -------- | ------------------------------ | ------------------------------------------------------------ | --------------------- | --------------------------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
+| POST     | 验证登录                       | {action:"login",userId:2021114514,pwd:"aabbcc",remember:0}   | /api                  | 无                          | {status:"200",userName:"\u5f20\u533b\u751f",permission:0} 或{status:"200",userName:"\u5f20\u533b\u751f",permission:1}或{status:"200",userName:"\u5f20\u533b\u751f",permission:2}或 {status:"401"} | ResponseBody需要返回utf-8编码后的值,避免编码错乱             |
+| GET      | 访问主页                       |                                                              | /                     |                             | 200状态码返回index.html的内容,否则302状态码重定向到login.html |                                                              |
+| POST     | 上传含有dcm文件的zip压缩包     | zip压缩包文件                                                | /api/file             |                             | {status:"200",DiagnosticResults:"\u8111\u762b"}或{status:401}或{status:"200",DiagnosticImg:["1689321426/1.png","1689321426/2.png"]} | DiagnosticResults是诊断结果. DiagnosticImg返回一个图片路径的数组,这里的1689321426是时间戳,便于存储图片. |
+| POST     | 管理员账户对单个普通账户的增改 | {userId:2021114514,pwd:"aabbcc",userName:"\u5f20\u533b\u751f",permission:1} | /api/add或/api/update |                             | 成功:{status:"200"};没有权限:{status:"401"};add时userId已重复:{status:"400"} |                                                              |
+| POST     | 管理员账户对单个普通账户的删除 | {userId:2021114514}                                          | /api/delete           |                             |                                                              |                                                              |
+| POST     | 管理员账户查询到所有账户       |                                                              | /api/getAll           |                             | {status:"200",result:[{userName:"\u5f20\u533b\u751f",pwd:"aabbcc",userName:"\u5f20\u533b\u751f",permission:0},{userName:"\u5f20\u533b\u751f",pwd:"aabbcc",userName:"\u5f20\u533b\u751f",permission:1}]}或{status:"401"} | 对session cookie进行判断,只有管理员账户才能返回200           |
+| GET      | 返回登录界面                   |                                                              | /login.html           |                             | 对cookie进行判断,若已登录则302状态码重定向到index.html,否则200状态码返回login.html |                                                              |
+| GET      | 返回管理员管理界面             |                                                              | /manage.html          |                             | 对cookie进行判断,若已登录且为管理员账户则200状态码返回manage.html,若已登录但不为管理员账户则302状态码重定向到index.html,若未登录则302状态码重定向到login.html |                                                              |
 
-#### 介绍
-企业短期实训医学影像识别
+permission说明:	0是Administrator, 1是Doctor, 2是病人
 
-#### 软件架构
-软件架构说明
+remember说明:	1是记住密码, 0是不记住密码
 
+# html文档目录
 
-#### 安装教程
+- index.html : 主页,上传文件,返回查询结果
 
-1.  xxxx
-2.  xxxx
-3.  xxxx
+- login.html : 登录页
 
-#### 使用说明
+- manage.html : 管理员账户对账户的增删改查
 
-1.  xxxx
-2.  xxxx
-3.  xxxx
+    
 
-#### 参与贡献
-
-1.  Fork 本仓库
-2.  新建 Feat_xxx 分支
-3.  提交代码
-4.  新建 Pull Request
+------
 
 
-#### 特技
 
-1.  使用 Readme\_XXX.md 来支持不同的语言，例如 Readme\_en.md, Readme\_zh.md
-2.  Gitee 官方博客 [blog.gitee.com](https://blog.gitee.com)
-3.  你可以 [https://gitee.com/explore](https://gitee.com/explore) 这个地址来了解 Gitee 上的优秀开源项目
-4.  [GVP](https://gitee.com/gvp) 全称是 Gitee 最有价值开源项目，是综合评定出的优秀开源项目
-5.  Gitee 官方提供的使用手册 [https://gitee.com/help](https://gitee.com/help)
-6.  Gitee 封面人物是一档用来展示 Gitee 会员风采的栏目 [https://gitee.com/gitee-stars/](https://gitee.com/gitee-stars/)
+# 一个demo
+
+```python
+
+from http.server import BaseHTTPRequestHandler, HTTPServer
+import os
+from PIL import Image
+
+
+class ImageHandler(BaseHTTPRequestHandler):
+    def do_GET(self):
+        print(self.path)
+        self.send_response(200)
+        self.send_header('Content-type', 'text/html')
+        self.end_headers()
+        file = open('./ImgPOST.html', 'r', encoding='utf-8').read()
+        self.wfile.write(file.encode())
+
+    def do_POST(self):
+        print(self.path)
+        # 保存接收到的图片文件
+        # image_path = 'received_image.jpg'  # 图片保存路径
+        # with open(image_path, 'wb') as f:
+        #     f.write(post_data)
+        #
+        # # 获取图片的大小和宽高
+        # image = Image.open(image_path)
+        # image_size = os.path.getsize(image_path)
+        # width, height = image.size
+        #
+        # # 构建响应消息
+        # response_message = f"Image size: {image_size} bytes\n"
+        # response_message += f"Image width: {width}px\n"
+        # response_message += f"Image height: {height}px"
+
+        # 发送响应消息
+
+        content_type = self.headers['Content-Type']
+        if content_type.startswith('multipart/form-data'):
+            content_length = int(self.headers['Content-Length'])
+            body = self.rfile.read(content_length)
+            content = body.split(b'\r\n\r\n')[1].split(b'\r\n------WebKitFormBoundary')[0]
+            # print(content)
+            image_path = 'received_image.jpg'  # 图片保存路径
+            with open(image_path, 'wb') as f:
+                f.write(content)
+
+            # 获取图片的大小和宽高
+            image = Image.open(image_path)
+            image_size = os.path.getsize(image_path)
+            width, height = image.size
+
+            # 构建响应消息
+            response_message = f"Image size: {image_size} bytes\n"
+            response_message += f"Image width: {width}px\n"
+            response_message += f"Image height: {height}px"
+            self.send_response(200)
+            self.send_header('Content-type', 'text/plain')
+            self.end_headers()
+            self.wfile.write(response_message.encode())
+
+        else:
+            self.send_response(400)
+            self.send_header('Content-type', 'text/plain')
+            self.end_headers()
+            self.wfile.write('Invalid request'.encode())
+
+
+def run():
+    server_address = ('', 8000)
+    httpd = HTTPServer(server_address, ImageHandler)
+    print('Starting server...')
+    httpd.serve_forever()
+
+
+run()
+
+```
+
+C:就是创建(Create), R:就是查找(Retrieve), U:就是更改(Update), D:就是删除(Delete).

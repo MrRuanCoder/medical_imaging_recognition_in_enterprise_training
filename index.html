@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>医学影像识别</title>
+  <style>
+    h1 {
+      background-color: rgb(21, 74, 182);
+      color: #fff;
+      line-height: 3em;
+      letter-spacing: 1ch;
+      font-size: 200%;
+      border-radius: 1em;
+      margin: 1vmax 1vmax 0;
+      box-shadow: rgb(227 232 238) 0px -1px 0px inset;
+      font-family: kaiTi;
+      text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.5);
+    }
+
+    * {
+      font-size: 110%;
+      box-sizing: border-box;
+      text-align: center;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+    }
+
+    b {
+      padding: .5rem;
+      background: rgba(0, 0, 0, 0.5);
+      color: #fff;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      border-radius: 1em;
+    }
+
+    #circleParent {
+      display: none;
+    }
+
+    #circle {
+      border-radius: 50%;
+      border: solid;
+      border-bottom: none;
+      border-right: none;
+      animation: circle 2s forwards linear infinite;
+      width: 1em;
+      height: 1em;
+      text-align: center;
+      display: inline-block;
+    }
+
+    @keyframes circle {
+      form {
+        transform: rotate(0deg);
+      }
+
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    /* .frame {
+      width: 49.3%;
+      display: inline-block;
+    } */
+
+    #previewImage {
+      border-style: solid;
+      display: none;
+      margin: 1em 0;
+      max-width: 49.5%;
+      max-height: 49.5%;
+    }
+
+    input[type="file"] {
+      max-width: 11em;
+      border: dotted 1q rgba(0, 0, 0, 0.5);
+      padding: 1mm;
+      cursor: pointer;
+      /* margin: 1em 0; */
+    }
+
+    #fileButton {
+      padding: 1em 0;
+    }
+
+    #fileButton>button {
+      padding: 1ch 1em;
+      margin: 1ch 0;
+    }
+
+    #fileButton>button:not([disabled]) {
+      cursor: pointer;
+    }
+
+    #fileButton>button[disabled] {
+      cursor: not-allowed;
+    }
+
+    #fileButton>label {
+      color: rgba(255, 0, 0, .8);
+      font-size: 1ch;
+      /* margin-top: 1px; */
+      transform: translateY(-1mm);
+    }
+
+    #main {
+      /* display: flex; */
+      border: dashed 1px rgb(0, 82, 204);
+      border-radius: 1em;
+      margin: 1ch 1ch 0;
+      background-color: rgb(241, 243, 245);
+      box-shadow: inset 2px 2px 30px rgba(0, 82, 204, .1), inset -2px -2px 30px rgba(0, 82, 204, .1);
+      min-height: 70vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    #side {
+      position: fixed;
+      top: 0;
+      left: 0;
+      transition: 1s;
+      /* display: none; */
+      width: 0px;
+      background-color: rgb(232, 237, 251);
+      color: rgb(0, 82, 204);
+      min-height: 100%;
+      /* for the title */
+      overflow-x: hidden;
+      box-shadow: 0 0 10px rgba(0, 82, 204, .5);
+      border-radius: 0 1cm 1cm 0;
+    }
+
+    #side>h2 {
+      margin-top: 50px;
+      font-family: 'Microsoft YaHei';
+    }
+
+    #side>ul {
+      margin-top: 1em;
+
+    }
+
+    #side>ul>li {
+      transition: .3s;
+      padding: 1ch;
+      cursor: pointer;
+    }
+
+    #side>ul>li:hover {
+      /* font-weight: bold; */
+      color: rgb(0, 20, 255);
+      background-color: rgb(200, 237, 251);
+    }
+
+    #sideButton {
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 1;
+      font-size: 1cm;
+      /* border: solid blue 1q; */
+      background-color: rgba(255, 255, 255, 0.9);
+      border-radius: 30%;
+      cursor: pointer;
+    }
+
+    #side>ul>li:nth-child(1) {
+      display: none;
+    }
+
+    img {
+      max-width: 30%;
+    }
+
+    .result {
+      margin: 1vmax 0;
+      ;
+    }
+
+    .result>span {
+      color: darkred;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>医学影像识别</h1>
+  <div id="main">
+    <!-- <div class='frame'> -->
+    <img id="previewImage">
+    <div id="fileButton"><input type="file">
+      <!-- <br>
+      <label for="fileButton">
+        请上传zip压缩文件
+      </label> -->
+      <br>
+      <button disabled><span id="upload">上传</span>
+        <div id="circleParent">
+          <div id='circle'></div>
+      </button>
+      <hr>
+      <p class="result">识别结果</p>
+      <!-- <img src="1.png"><img src="2.png"><img src="3.png"> -->
+      <hr>
+      <p class="result">
+        诊断推测: &nbsp;&nbsp;<span>94</span>% 患有<strong>阿尔茨海默病</strong>, <span>5</span>% 患有<strong>帕金森病</strong>,
+        <span>1</span>%
+        患有<strong>脑瘫</strong>
+      </p>
+    </div>
+    <!-- </div> -->
+    <!-- <div class='frame'> -->
+
+    <!-- </div> -->
+  </div>
+  </div>
+
+  <span id="sideButton">
+    ☰
+  </span>
+  <div id="side" style="width: 0px;">
+    <h2>
+      欢迎你,<span></span>
+    </h2>
+    <ul>
+      <li>管理账户</li>
+      <li>退出登录</li>
+    </ul>
+
+  </div>
+</body>
+<script>
+  onload = function () {
+    const toggle = params => {
+      let p = document.createElement("b")
+      p.innerHTML = params
+      document.body.appendChild(p)
+      setTimeout(() => {
+        p.remove()
+      }, 2e3)
+      p.onclick = () => p.remove()
+    }
+    const button = document.querySelector('button')
+    const circle = document.getElementById('circle')
+    const circleParent = document.getElementById('circleParent')
+    const previewImage = document.getElementById('previewImage');
+    const fileInput = document.querySelector('input[type="file"]')
+    const upload = document.getElementById('upload');
+    // const frame = document.getElementsByClassName('frame')
+    button.onclick = function () {
+      circleParent.style.display = "inline-block";
+      upload.style.display = "none";
+      button.disabled = true;
+      // frame[1].style.minHeight = getComputedStyle(frame[0]).height
+      // circle.style.width = circle.style.height = getComputedStyle(previewImage).height
+      // const reader = new FileReader();
+      // reader.readAsDataURL(file);
+      const formData = new FormData()
+      formData.append('file', fileInput.files[0])
+      // let xhr = new XMLHttpRequest()
+      // xhr.withCredentials = true
+      // xhr.open('POST', 'http://localhost:8000')
+      // xhr.setRequestHeader('Access-Control-Allow-Origin','*')
+      // xhr.setRequestHeader('Content-Type','text/plain')
+      // xhr.send(formData)
+      // xhr.onreadystatechange = function() {
+      //   if (xhr.readyState === 4 && xhr.status === 200) {
+      //     console.log(xhr.responseText)
+      //   }
+      // }
+      fetch('api/file', {
+        method: "POST",
+        body: formData
+      }).then(e => e.text()).then(e => {
+        // document.querySelector('div').innerText = e;
+        // button.disabled = false;
+        console.log(e);
+      }).catch(e => {
+        // button.disabled = false;
+        toggle('对不起, 上传失败')
+        console.log(e);
+      }).then(() => {
+        circleParent.style.display = "none";
+        upload.style.display = "inline-block";
+        button.disabled = false;
+        fileInput.value = null
+      })
+    }
+
+    fileInput.onchange = function () {
+      const file = fileInput.files[0]
+      if (file && file.name.endsWith('.zip') && file.type === 'application/x-zip-compressed') {
+        // const reader = new FileReader();
+        // reader.readAsDataURL(file);
+        // reader.onload = () => {
+        //   previewImage.src = reader.result;
+        //   button.disabled = false;
+        //   previewImage.style.display = 'inline-block'
+        button.disabled = false;
+        // }
+      } else {
+        toggle('对不起,你上传的不是zip压缩文件');
+        button.disabled = true;
+        previewImage.style.display = 'none'
+        fileInput.value = null
+      }
+    }
+    const side = document.getElementById('side')
+    document.getElementById('sideButton').onclick = function () {
+      // side.style.display = side.style.display === 'none' ? 'block' : 'none'
+      side.style.width = side.style.width === '0px' ? '200px' : '0px'
+    }
+    document.querySelector("#side > ul > li:nth-child(1)").onclick = function () {
+      open('manager.html', '_self')
+    }
+    document.querySelector("#side > ul > li:nth-child(2)").onclick = function () {
+      if (confirm("确定要退出登录吗?")) {
+        document.cookie = "userId=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+        document.cookie = "pwd=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+        open('login.html', '_self')
+      }
+    }
+  }
+
+</script>
+
+</html>
