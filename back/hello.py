@@ -1,3 +1,11 @@
+'''
+Author: Ruan 110537579+MrRuanCoder@users.noreply.github.com
+Date: 2023-07-14 20:13:20
+LastEditors: Ruan 110537579+MrRuanCoder@users.noreply.github.com
+LastEditTime: 2023-07-15 13:51:38
+FilePath: \medical_imaging_recognition_in_enterprise_training\back\hello.py
+Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
+'''
 from flask import Flask
 from flask import request
 from flask import abort, redirect
@@ -6,38 +14,35 @@ from flask import jsonify
 from adminApi import *
 from learnSQL import *
 from learnSQL import db
+import os
+from datetime import timedelta
 
 app = Flask(__name__)
 # Set the secret key to some random bytes. Keep this really secret!
 app.secret_key = '_5#y2L"F4Q8z\n\xec]/1'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///first.db'
+app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=7) # 配置7天有效 
 
 
-@app.route("/index/<name>")
-def hello(name):
-    return "Hello World! %s" % (name + name)
- 
-@app.route('/')
-def index():
-    user_info=session.get('user_info')
-    if not user_info:
-        return redirect('/login.html')
-    return 'hello'
+# 通过静态路由访问
+# 运行程序，http://127.0.0.1:5000/show
+# @ app.route("/")
+# def show_file():
+#     return app.send_static_file("index.html")
 
 @app.route('/')
 def mainPage():
-    if 'username' in session:
-        # 存在会话，返回重定向的目标 URL
-        return redirect('/index.html')
+    username = session.get('username')
+    if username is None:
+        return app.send_static_file('index.html')    
     else:
-        # 无会话，返回空的重定向 URL
-        return redirect('/login.html')
+        return app.send_static_file("login.html")
 
 
 #清空session,退出登录
 @app.route('/logout', methods=['GET'])
 def logout():
-    session.claer()
+    session.clear()
     return jsonify(msg='退出成功')    
 
 
