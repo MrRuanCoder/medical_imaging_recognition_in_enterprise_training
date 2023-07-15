@@ -1,11 +1,3 @@
-'''
-Author: Ruan 110537579+MrRuanCoder@users.noreply.github.com
-Date: 2023-07-14 20:13:20
-LastEditors: Ruan 110537579+MrRuanCoder@users.noreply.github.com
-LastEditTime: 2023-07-15 15:44:09
-FilePath: \medical_imaging_recognition_in_enterprise_training\back\hello.py
-Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
-'''
 from flask import Flask
 from flask import request
 from flask import abort, redirect
@@ -51,7 +43,6 @@ def logout():
     return jsonify(msg='退出成功')    
 
 @app.route('/', methods=['GET', 'POST'])
-@login_required
 def home():
     if not session.get('logged_in'):
         return render_template('login.html')
