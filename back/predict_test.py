@@ -19,8 +19,8 @@ current_dir = os.path.dirname(current_file)
 # 将当前目录添加到 sys.path 中
 sys.path.append(current_dir)
 
-# import model_train
-from . import model_train
+import model_train
+# from . import model_train
 import network_L3 as network
 
 from picture_test import data_preprocess_base
@@ -28,7 +28,7 @@ from picture_test import data_preprocess_base
 
 def test_alexnet(model_name, picture_path=None):
     print('------ Testing Start ------')
-    model = network.initialize_model(backbone=model_train.backbone, pretrained=model_train.pretrained,
+    model = initialize_model(backbone=model_train.backbone, pretrained=model_train.pretrained,
                                      NUM_CLASS=model_train.NUM_CLASS)
     model.load_state_dict(torch.load(model_name), False)
     test_pred = []
