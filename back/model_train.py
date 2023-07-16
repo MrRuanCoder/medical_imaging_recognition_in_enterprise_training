@@ -6,7 +6,7 @@ from pylab import *
 from PIL import Image
 from torch import nn
 
-import picture_data_prepare_with_sampling as dataset
+from . import picture_data_prepare_with_sampling as dataset
 from sklearn import metrics
 import network_L3 as network
 import os

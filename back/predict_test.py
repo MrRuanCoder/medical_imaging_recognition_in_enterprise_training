@@ -7,7 +7,20 @@ from numpy import array
 from torch.utils import data
 from torchvision.transforms import transforms
 
-import model_train
+import sys
+import os
+
+# 获取当前文件的绝对路径
+current_file = os.path.abspath(__file__)
+
+# 获取当前文件所在的目录
+current_dir = os.path.dirname(current_file)
+
+# 将当前目录添加到 sys.path 中
+sys.path.append(current_dir)
+
+# import model_train
+from . import model_train
 import network_L3 as network
 
 from picture_test import data_preprocess_base
