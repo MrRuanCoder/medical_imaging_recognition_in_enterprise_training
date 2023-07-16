@@ -45,6 +45,7 @@ def mainPage():
 def logout():
     session.clear()
     return jsonify(msg='退出成功')
+
 @app.route('/manager', methods=['GET'])
 def manage():
     print(session.get('permission'))
@@ -71,6 +72,7 @@ def login():
             return jsonify(code=400, msg='参数不完整')
         # print(get_data)
         arr= query(username)
+        print(arr)
         if arr is not None:
             for i in arr:
                 if i[2]==password:
@@ -88,21 +90,22 @@ def login():
             return jsonify(code=400, msg='账号或密码错误')
         else:
             return jsonify(msg='登录失败')
-        user = User.query.filter(User.username == username).first() 
+        
+        # user = User.query.filter(User.username == username).first() 
 
-        if user is None or password != user.password:
-            return jsonify(code=400, msg="账号或密码错误")
+        # if user is None or password != user.password:
+        #     return jsonify(code=400, msg="账号或密码错误")
 
-        permission = user.permission
+        # permission = user.permission
 
-        # 验证通过，保存登录状态在session中
-        session['username'] = username
-        session["id"] = user.id
-        session["permission"] = permission
-        session['logged_in'] = True
-        # session['password'] = password
-        # return home()
-        return jsonify(status=200, msg="登录成功")
+        # # 验证通过，保存登录状态在session中
+        # session['username'] = username
+        # session["id"] = user.id
+        # session["permission"] = permission
+        # session['logged_in'] = True
+        # # session['password'] = password
+        # # return home()
+        # return jsonify(status=200, msg="登录成功")
 
     except Exception as e:
         traceback.print_exception(type(e), e, e.__traceback__)
