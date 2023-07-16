@@ -14,7 +14,7 @@ from PIL import Image
 
 import sys
 sys.path.append("..") 
-from test import *
+from nettest.predict_test import *
 
 
 #单个图像处理
