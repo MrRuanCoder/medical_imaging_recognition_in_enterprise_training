@@ -1,11 +1,3 @@
-'''
-Author: Ruan 110537579+MrRuanCoder@users.noreply.github.com
-Date: 2023-07-14 20:13:20
-LastEditors: Ruan 110537579+MrRuanCoder@users.noreply.github.com
-LastEditTime: 2023-07-15 15:44:09
-FilePath: \medical_imaging_recognition_in_enterprise_training\back\hello.py
-Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
-'''
 from flask import Flask
 from flask import request
 from flask import abort, redirect
@@ -26,7 +18,7 @@ app = Flask(__name__)
 # Set the secret key to some random bytes. Keep this really secret!
 app.secret_key = '_5#y2L"F4Q8z\n\xec]/1'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///first.db'
-app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=7) # 配置7天有效 
+app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=7)  # 配置7天有效
 
 
 # 通过静态路由访问
@@ -39,35 +31,45 @@ app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=7) # 配置7天有效
 def mainPage():
     # username = session.get('username')
     # if username is None:
-    #     return render_template('index.html')    
+    #     return render_template('index.html')
     # else:
     #     # return app.send_static_file("login.html")
-        return render_template('login.html')
+    if session.get('logged_in'):
+        return render_template('index.html')
+    return render_template('login.html')
 
-#清空session,退出登录
+# 清空session,退出登录
+
+
 @app.route('/logout', methods=['GET'])
 def logout():
     session.clear()
-    return jsonify(msg='退出成功')    
+    return jsonify(msg='退出成功')
+@app.route('/manager', methods=['GET'])
+def manage():
+    print(session.get('permission'))
+    if session.get('permission')=='0':
+        return render_template('manager.html')
+    return jsonify(msg='权限不足')
 
 @app.route('/', methods=['GET', 'POST'])
-@login_required
 def home():
     if not session.get('logged_in'):
         return render_template('login.html')
     else:
         return render_template('index.html')
-        
+
 
 @app.route('/api/login', methods=['POST'])
 def login():
     try:
-        get_data = request.get_json()    
+        get_data = request.get_json()
         username = get_data.get('username')
         password = get_data.get('password')
-    
-        if not all([username,password]):
+        remember = get_data.get('remember')
+        if not all([username, password]):
             return jsonify(code=400, msg='参数不完整')
+        # print(get_data)
         arr= query(username)
         if arr is not None:
             for i in arr:
@@ -78,8 +80,10 @@ def login():
                     session["id"] = i[0]
                     session["permission"] = permission
                     session['logged_in'] = True
+                    if remember==1:
+                        session.permanent = True
                     # session['password'] = password
-                    return jsonify(code=200, msg="登录成功")
+                    return jsonify(code=200, msg="登录成功",username=username,permission=permission)
                     # return home()
             return jsonify(code=400, msg='账号或密码错误')
         else:
@@ -91,14 +95,15 @@ def login():
 
         permission = user.permission
 
-            #验证通过，保存登录状态在session中
+        # 验证通过，保存登录状态在session中
         session['username'] = username
         session["id"] = user.id
         session["permission"] = permission
         session['logged_in'] = True
-            # session['password'] = password
-        return home()
-    
+        # session['password'] = password
+        # return home()
+        return jsonify(status=200, msg="登录成功")
+
     except Exception as e:
         traceback.print_exception(type(e), e, e.__traceback__)
         return jsonify(msg='登录失败')   
@@ -109,30 +114,39 @@ def login():
 def check_session():
     username = session.get('username')
     if username is not None:
-        #加上操作逻辑，数据库之类的
+        # 加上操作逻辑，数据库之类的
         return jsonify(username=username)
     else:
         return jsonify(msg='未登录')
 
 # 创建用户 (增)
+
+
 @app.route("/api/add", methods=["POST"])
 def user_add0():
     return user_add()
 
-#获得所有用户（查所有）
-@app.route("/api/all", methods=["POST"])
+# 获得所有用户（查所有）
+
+
+@app.route("/api/all", methods=['GET',"POST"])
 def getAll0():
     return getAll()
 
-#修改用户(改)
+# 修改用户(改)
+
+
 @app.route("/api/update", methods=["POST"])
 def user_update0():
     return user_update()
 
-#删除用户
+# 删除用户
+
+
 @app.route("/api/delete", methods=["DELETE"])
 def user_delete0():
     return user_delete()
+
 
 @app.route('/api/file', methods=['POST'])
 def zipImage1_():

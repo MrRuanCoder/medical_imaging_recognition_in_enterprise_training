@@ -154,6 +154,7 @@
       transition: .3s;
       padding: 1ch;
       cursor: pointer;
+      list-style: none
     }
 
     #side>ul>li:hover {
@@ -349,14 +350,20 @@
     side.style.width = side.style.width === '0px' ? '200px' : '0px'
   }
   sideLi[0].onclick = function () {
-    open('manager.html', '_self')
+    open('manager', '_self')
   }
   sideLi[2].onclick = function () {
     if (confirm("确定要退出登录吗?")) {
+      fetch('logout').then(() => {
+        localStorage.clear();
+        setTimeout(() => location.reload());
+      })
+      // nulls are optional,
       document.cookie = "userId=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
       document.cookie = "pwd=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
       localStorage.clear();
-      open('login.html', '_self')
+      // location.reload();
+      // open('login.html', '_self')
     }
   }
   sideLi[1].onclick = function () {

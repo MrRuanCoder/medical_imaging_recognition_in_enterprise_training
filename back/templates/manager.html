@@ -46,6 +46,61 @@
       justify-content: center;
       flex-direction: column;
     }
+
+    button,
+    input,
+    select,
+    textarea,
+    option {
+      /* button, input, select, textarea */
+      color: black;
+    }
+
+    b {
+      padding: .5rem;
+      background: rgba(0, 0, 0, 0.5);
+      color: #fff;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      border-radius: 1em;
+      font-size: 2vmax;
+    }
+
+    th,
+    td,
+    button,
+    input,
+    select,
+    textarea,
+    option {
+      font-size: 2vmax;
+      /* padding: 0 1em; */
+    }
+
+    button {
+      cursor: pointer;
+      padding: 0 1ex;
+    }
+
+    select,
+    option {
+      cursor: pointer;
+    }
+
+    button:first-child:not(:only-child) {
+      margin-right: 1mm;
+    }
+
+    td:nth-child(4) {
+      padding: 1ex 1em;
+    }
+
+    h1 {
+      margin-bottom: 8px;
+      font-size: 3vmax;
+    }
   </style>
 </head>
 
@@ -85,30 +140,37 @@
   const selectStr = '<select><option value="请选择">请选择</option><option value="0">管理员</option><option value="1">普通用户</option></select>'
   const table = document.querySelector('table');
   const tableFetch = () =>
-    fetch('api/getAll').then(e => e.json()).then(e => {
-      for (let i = 1; i < table.querySelectorAll('tr').length; i++) {
-        table.querySelectorAll('tr')[i].remove()
+    fetch('api/all').then(e => e.json()).then(e => {
+      const trs = table.querySelectorAll('tr')
+
+      for (let i = 1; i < trs.length; i++) {
+        trs[i].remove()
       }
-      e.forEach(item => {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
+      setTimeout(() => {
+        e.users.forEach(item => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
         <td style='display:none'>${item.id}</td>
+        <td>${item.username}</td>
         <td>${item.password}</td>
-        <td>${item.name}</td>
-        <td>${item.permission}</td>
-        <td><button onclick="del(${item.id})">删除</button>button onclick="modify(${item.id},this)">修改</button></td>
+        <td>${item.permission == 1 ? "普通用户" : "管理员"}</td>
+        <td><button onclick="del(${item.id})">删除</button><button onclick="modify(${item.id},this)">修改</button></td>
       `
-        table.appendChild(tr);
+          table.appendChild(tr);
+        })
+        const tr = document.createElement('tr')
+        tr.innerHTML = `<td><input placeholder=姓名></td><td><input placeholder=密码></td><td>${selectStr}</td><td><button onclick="add(this)">添加</button></td>`
+        table.appendChild(tr)
       })
-      const tr = document.createElement('tr')
-      tr.innerHTML = `<td><input placeholder=工号></td><td placeholder=密码><input></td><td placeholder=姓名><input></td><td>${selectStr}</td><td><button onclick="add(this)">添加</button></td>`
-      table.appendChild(tr)
     })
   function del (id) {
     if (!confirm('确定删除？')) return;
     fetch('api/delete', {
-      method: 'POST',
-      body: { id: id }
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ id: id })
     }).then(e => e.json()).then(e => {
       toggle('删除成功')
       tableFetch()
@@ -118,23 +180,29 @@
   }
   function modify (id, e) {
     e.innerText = '保存'
-    e.onclick = 'save(id,this)'
-    for (let i = 0; i < e.parent.parent.querySelectorAll('td') - 2; i++) {
-      i.innerHTML = `<input value="${i.innerText}">`
+    e.removeAttribute('onclick')
+    e.onclick = () => save(id, e)
+    const tds = e.parentNode.parentNode.querySelectorAll('td')
+    for (let i = 0; i < 3; i++) {
+      tds[i].innerHTML = `<input value="${tds[i].innerText}">`
     }
-    const select = e.parent.parent.querySelectorAll('td')[3]
+    const select = tds[3]
     const selectData = select.innerText
     select.innerHTML = selectStr
+    select.querySelector('select').value = selectData == "管理员" ? "0" : "1"
   }
   function save (id, e) {
-    fetch('api/modify', {
+    fetch('api/update', {
       method: 'POST',
-      body: {
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
         id: id,
-        password: e.parent.parent.querySelectorAll('td')[1].querySelector('input').value,
-        name: e.parent.parent.querySelectorAll('td')[2].querySelector('input').value,
-        permission: e.parent.parent.querySelectorAll('td')[3].querySelector('select').value
-      }
+        username: e.parentNode.parentNode.querySelectorAll('td')[1].querySelector('input').value,
+        password: e.parentNode.parentNode.querySelectorAll('td')[2].querySelector('input').value,
+        permission: e.parentNode.parentNode.querySelectorAll('td')[3].querySelector('select').value
+      })
     }).then(e => e.json()).then(e => {
       toggle('修改成功')
       tableFetch()
@@ -143,21 +211,27 @@
     })
   }
   function add (e) {
-    const td = e.parent.parent.querySelectorAll('td')
-    const id = td[0].querySelector('input')
+    const td = e.parentNode.parentNode.querySelectorAll('td')
+    // const id = td[0].querySelector('input')
+    const name = td[0].querySelector('input')
     const password = td[1].querySelector('input')
-    const name = td[2].querySelector('input')
-    const permission = td[3].querySelector('select')
-    if (id.value === '') {
-      toggle('工号不能为空')
-      td[0].querySelector('input').focus()
-      return
-    }
+    const permission = td[2].querySelector('select')
+
+    // if (id.value === '') {
+    //   toggle('工号不能为空')
+    //   td[0].querySelector('input').focus()
+    //   return
+    // }
     // if (checkString(id.value, /^\d+$/)) {
     //   toggle('账号只能为数字');
     //   id.focus();
     //   return;
     // }
+    if (name.value === '') {
+      toggle('姓名不能为空')
+      td[2].querySelector('input').focus()
+      return
+    }
     if (password.value === '') {
       toggle('密码不能为空')
       td[1].querySelector('input').focus()
@@ -168,11 +242,7 @@
       password.focus();
       return;
     }
-    if (name.value === '') {
-      toggle('姓名不能为空')
-      td[2].querySelector('input').focus()
-      return
-    }
+
     if (permission.value === '请选择') {
       toggle('请选择权限')
       td[3].querySelector('select').focus()
@@ -181,12 +251,15 @@
 
     fetch('api/add', {
       method: 'POST',
-      body: {
-        id: id.value,
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        // id: id.value,
         password: password.value,
-        name: name.value,
+        username: name.value,
         permission: permission.value
-      }
+      })
     }).then(e => e.json()).then(e => {
       toggle('添加成功')
       tableFetch()

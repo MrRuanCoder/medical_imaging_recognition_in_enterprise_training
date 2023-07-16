@@ -1,5 +1,7 @@
 from flask import jsonify, request, session
 from learnSQL import User, db   #导入数据库模型类和数据库对象
+from SQLiteDemo import SQLiteGetAll, modify, add, delete
+
 
 # 创建用户 (增)
 def user_add():
@@ -9,14 +11,17 @@ def user_add():
     permission = req_data.get("permission")
     action = req_data.get("action")
 
-    user = User(username=username, password=password, permission=permission, action=action)
+    # user = User(username=username, password=password, permission=permission, action=action)
     try:
         if 'permission' in session and session['permission'] != '0':
             return jsonify(code=400, msg="无权限进行操作")
         
-        db.session.add(user)
-        db.session.commit()
-        return jsonify(code=200, msg="新增用户成功")
+        # db.session.add(user)
+        # db.session.commit()
+        if add(username, password, permission) == True:
+            return jsonify(code=200, msg="新增用户成功")
+        else:
+            return jsonify(code=400, msg="新增用户失败")
     except Exception as e:
         print(e)
         db.session.rollback()
@@ -28,16 +33,16 @@ def getAll():
         if session['permission'] != '0':
             return  jsonify(code=400, msg="无权限进行操作")
 
-        users = User.query.all()  # 查询数据库中所有用户
-
+        # users = User.query.all()  # 查询数据库中所有用户
+        users = SQLiteGetAll()
         user_list = []
         for user in users:
             user_data = {
-                'id': user.id,
-                'username': user.username,
-                'password': user.password,
-                'permission': user.permission,
-                'action': user.action
+                'id': user[0],
+                'username': user[1],
+                'password': user[2],
+                'permission': user[3],
+                'action': user[4]
             }
             user_list.append(user_data)
 
@@ -56,19 +61,21 @@ def user_update():
     action = req_data.get("action")
 
     try:
-        user = User.query.get(id)  # 查询要更新的用户对象
-        if user is None:
-            return jsonify(code=400, msg="用户不存在")
+        # user = User.query.get(id)  # 查询要更新的用户对象
+        # if user is None:
+        #     return jsonify(code=400, msg="用户不存在")
 
         if 'permission' in session and session['permission'] != '0':
             return jsonify(code=400, msg="无权限进行操作")
 
-        user.username = username  # 更新用户信息
-        user.password = password
-        user.permission = permission
-        user.action = action
-
-        db.session.commit()  # 提交数据库事务
+        # user.username = username  # 更新用户信息
+        # user.password = password
+        # user.permission = permission
+        # user.action = action
+        #
+        # db.session.commit()  # 提交数据库事务
+        if modify(id,username, password, permission) == False:
+            return jsonify(code=400, msg="用户信息更新失败")
         return jsonify(code=200, msg="用户信息更新成功")
     
     except Exception as e:
@@ -80,17 +87,17 @@ def user_update():
 def user_delete():
     req_data = request.get_json()
     user_id = req_data.get("id")  # 获取要删除的用户 ID
-
+    username = req_data.get("username")
     try:
-        user = User.query.get(user_id)  # 查询要删除的用户对象
-        if user is None:
-            return jsonify(code=400, msg="用户不存在")
+        # user = User.query.get(user_id)  # 查询要删除的用户对象
+
 
         if 'permission' in session and session['permission'] != '0':
             return jsonify(code=400, msg="无权限进行操作")
-
-        db.session.delete(user)  # 删除用户对象
-        db.session.commit()  # 提交数据库事务
+        if delete(user_id)==False:
+            return jsonify(code=400, msg="用户不存在")
+        # db.session.delete(user)  # 删除用户对象
+        # db.session.commit()  # 提交数据库事务
 
         return jsonify(code=200, msg="用户删除成功")
     except Exception as e:
