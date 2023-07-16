@@ -12,6 +12,11 @@ from io import BytesIO
 import numpy
 from PIL import Image
 
+import sys
+sys.path.append("..") 
+from test import *
+
+
 #单个图像处理
 def singleImage():
     f = request.files['file']

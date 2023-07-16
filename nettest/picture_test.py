@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 from pylab import *
 import pydicom
 import cv2
+import os
 
 
 def img_resize(img, size=224):
@@ -64,8 +65,12 @@ def data_preprocess_base2(img, size):
     return img
 
 
-if __name__ == '__main--':
-    dcm_path = "data/images\\00001.dcm"
+if __name__ == '__main__':
+    dcm_path = "./nettest/data/images/00001.dcm"
+
+    absolute_path = os.path.abspath(dcm_path)
+    print("绝对路径:", absolute_path)
+
     dcm_info = pydicom.read_file(dcm_path)
     print(dcm_info)
     dcm_img = dcm_info.pixel_array

@@ -130,7 +130,7 @@ if __name__ == '__main__':
     i = 0
     while i < 800:
         i += 1
-        path_base = 'data/images/00'
+        path_base = './data/images/00'
         path_last = '.dcm'
         path_num = i.__str__()
         if i < 10:
