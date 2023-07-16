@@ -1,9 +1,9 @@
-from flask import Flask
-from flask import request
-from flask import abort, redirect
-from flask import session
-from flask import jsonify
+import traceback
+from datetime import timedelta
+
+from SQLiteDemo import query
 from adminApi import *
+from imageApi import *
 from learnSQL import *
 from learnSQL import db
 import os
@@ -90,14 +90,13 @@ def login():
             return jsonify(code=400, msg='账号或密码错误')
         else:
             return jsonify(msg='登录失败')
-        
-        # user = User.query.filter(User.username == username).first() 
-
+        # user = User.query.filter(User.username == username).first()
+        #
         # if user is None or password != user.password:
         #     return jsonify(code=400, msg="账号或密码错误")
-
+        #
         # permission = user.permission
-
+        #
         # # 验证通过，保存登录状态在session中
         # session['username'] = username
         # session["id"] = user.id
@@ -161,4 +160,4 @@ if __name__ == '__main__':
     db.init_app(app)
     with app.app_context():
         db.create_all()
-    app.run()
+    app.run(host='0.0.0.0')
