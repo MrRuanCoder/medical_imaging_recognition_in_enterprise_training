@@ -6,7 +6,14 @@ from adminApi import *
 from imageApi import *
 from learnSQL import *
 from learnSQL import db
-
+import os
+from datetime import timedelta
+from imageApi import *
+from flask import render_template
+from imageApi import *
+from serverMachine import *
+from SQLiteDemo import query
+import traceback
 app = Flask(__name__)
 # Set the secret key to some random bytes. Keep this really secret!
 app.secret_key = '_5#y2L"F4Q8z\n\xec]/1'
@@ -38,6 +45,7 @@ def mainPage():
 def logout():
     session.clear()
     return jsonify(msg='退出成功')
+
 @app.route('/manager', methods=['GET'])
 def manage():
     print(session.get('permission'))
@@ -64,6 +72,7 @@ def login():
             return jsonify(code=400, msg='参数不完整')
         # print(get_data)
         arr= query(username)
+        print(arr)
         if arr is not None:
             for i in arr:
                 if i[2]==password:

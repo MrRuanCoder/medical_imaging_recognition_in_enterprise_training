@@ -1,11 +1,14 @@
-/opt/
+/back/opt/
+/nettest/model/
+/nettest/data/
+/back/model/
+/back/data/
 .idea
 *.zip
-*.png
-# Byte-compiled / optimized / DLL files
-__pycache__/
-*.py[cod]
 *$py.class
+*.dcm
+*.png
+*.jpg
 
 # C extensions
 *.so
