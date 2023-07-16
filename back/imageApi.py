@@ -1,3 +1,4 @@
+
 from flask import jsonify, request, session
 from werkzeug.utils import secure_filename
 from learnSQL import User, db  
@@ -5,6 +6,9 @@ import os
 import zipfile
 from werkzeug.utils import secure_filename
 from flask import render_template
+import socket
+import pydicom
+from io import BytesIO
 
 #单个图像处理
 def singleImage():
@@ -37,3 +41,49 @@ def zipImage1():
 
 def zipImage2(): 
     pass
+
+def transformImage():
+    image_path = '../opt/upload/00001.dcm'  # DICOM文件路径
+    dicom_data = pydicom.dcmread(image_path)
+    image_data = dicom_data.pixel_array.tobytes()
+
+# IPV4/TCP 协议
+    tcp_client_socket = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
+# 2 和服务器端建立连接
+    tcp_client_socket.connect(('127.0.0.0',8080))
+# 3 发送数据，必须是字节流
+# encode(把字符串转为bytes) decode（把bytes转为字符串）
+#     # while True:
+#     data = input('发送')
+#         # if data != '*':
+#     data = data.encode('gbk')
+#     tcp_client_socket.send(data)
+#     # 4 接收服务器返回的数据  recv(字节大小）
+#     recv_data = tcp_client_socket.recv(1024).decode('gbk')
+#     print('服务器：', recv_data)
+# # 5 关闭套接字对象
+#         # else:
+#     tcp_client_socket.close()
+#     exit()
+
+# 发送数据
+    tcp_client_socket.send(image_data)
+
+# 接收服务器返回的数据
+    recv_data = tcp_client_socket.recv(1024).decode('gbk')
+    print('服务器：', recv_data)
+
+    try:
+        dcm_data = pydicom.dcmread(BytesIO(recv_data))
+        if dcm_data.file_meta.FileMetaInformationVersion:
+            print('服务器返回的数据是DICOM图片')
+        # 在这里添加处理DICOM图片的逻辑
+        else:
+            print('服务器返回的数据不是DICOM图片')
+        # 在这里添加处理非DICOM图片的逻辑
+    except pydicom.errors.InvalidDicomError:
+        print('服务器返回的数据不是DICOM图片')
+    # 在这里添加处理非DICOM图片的逻辑
+
+# 关闭套接字对象
+    tcp_client_socket.close()
