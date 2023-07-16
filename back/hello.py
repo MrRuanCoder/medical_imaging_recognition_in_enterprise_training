@@ -12,8 +12,8 @@ from imageApi import *
 from flask import render_template
 from imageApi import *
 from serverMachine import *
-
-
+from SQLiteDemo import query
+import traceback
 app = Flask(__name__)
 # Set the secret key to some random bytes. Keep this really secret!
 app.secret_key = '_5#y2L"F4Q8z\n\xec]/1'
@@ -34,6 +34,8 @@ def mainPage():
     #     return render_template('index.html')
     # else:
     #     # return app.send_static_file("login.html")
+    if session.get('logged_in'):
+        return render_template('index.html')
     return render_template('login.html')
 
 # 清空session,退出登录
@@ -43,7 +45,12 @@ def mainPage():
 def logout():
     session.clear()
     return jsonify(msg='退出成功')
-
+@app.route('/manager', methods=['GET'])
+def manage():
+    print(session.get('permission'))
+    if session.get('permission')=='0':
+        return render_template('manager.html')
+    return jsonify(msg='权限不足')
 
 @app.route('/', methods=['GET', 'POST'])
 def home():
@@ -59,14 +66,32 @@ def login():
         get_data = request.get_json()
         username = get_data.get('username')
         password = get_data.get('password')
-
+        remember = get_data.get('remember')
         if not all([username, password]):
             return jsonify(code=400, msg='参数不完整')
-
-        user = User.query.filter(User.username == username).first()
+        # print(get_data)
+        arr= query(username)
+        if arr is not None:
+            for i in arr:
+                if i[2]==password:
+                    permission = i[3]
+                    # 验证通过，保存登录状态在session中
+                    session['username'] = username
+                    session["id"] = i[0]
+                    session["permission"] = permission
+                    session['logged_in'] = True
+                    if remember==1:
+                        session.permanent = True
+                    # session['password'] = password
+                    return jsonify(code=200, msg="登录成功",username=username,permission=permission)
+                    # return home()
+            return jsonify(code=400, msg='账号或密码错误')
+        else:
+            return jsonify(msg='登录失败')
+        user = User.query.filter(User.username == username).first() 
 
         if user is None or password != user.password:
-            return jsonify(code=400, msg="账号密码错误1")
+            return jsonify(code=400, msg="账号或密码错误")
 
         permission = user.permission
 
@@ -80,8 +105,8 @@ def login():
         return jsonify(status=200, msg="登录成功")
 
     except Exception as e:
-        print(e)
-        return jsonify(msg='登录失败')
+        traceback.print_exception(type(e), e, e.__traceback__)
+        return jsonify(msg='登录失败')   
 
 
 # 检查登录状态
@@ -104,7 +129,7 @@ def user_add0():
 # 获得所有用户（查所有）
 
 
-@app.route("/api/all", methods=["POST"])
+@app.route("/api/all", methods=['GET',"POST"])
 def getAll0():
     return getAll()
 
