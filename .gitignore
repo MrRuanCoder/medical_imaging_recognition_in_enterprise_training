@@ -1,4 +1,6 @@
 /opt/
+/test/model/
+/test/data/
 .idea
 *.zip
 *.png
