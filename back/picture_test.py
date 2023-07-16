@@ -4,6 +4,8 @@ from pylab import *
 import pydicom
 import cv2
 import os
+import scipy.misc   #imsave 函数已被弃用
+from PIL import Image
 
 
 def img_resize(img, size=224):
@@ -64,6 +66,29 @@ def data_preprocess_base2(img, size):
     img = img.astype(np.uint8)
     return img
 
+def image_deal_transfer(dcm_path):
+    dcm_path = dcm_path
+
+    # absolute_path = os.path.abspath(dcm_path)
+    # print("绝对路径:", absolute_path)
+
+    dcm_info = pydicom.read_file(dcm_path)
+    print(dcm_info)
+    dcm_img = dcm_info.pixel_array
+    print(dcm_img)
+    print('图像形状=', dcm_img.shape,
+          '图像最小值=', dcm_img.min(),
+          '图像最大值=', dcm_img.max())
+    
+    out_path = './output.jpg'
+    plt.imshow(dcm_img)
+    scipy.misc.imsave(out_path,dcm_img)
+
+    plt.title('dcm_img')
+    plt.imshow(dcm_img, cmap='gray')
+    plt.show()    
+
+
 
 if __name__ == '__main__':
     dcm_path = "./data/images/00002.dcm"
@@ -78,10 +103,34 @@ if __name__ == '__main__':
     print('图像形状=', dcm_img.shape,
           '图像最小值=', dcm_img.min(),
           '图像最大值=', dcm_img.max())
+    
+    out_path = './static/output.jpg'
 
     plt.title('dcm_img')
     plt.imshow(dcm_img, cmap='gray')
     plt.show()
+
+
+    # # 将图像转换为灰度图像
+    # dcm_img_gray = np.uint8(dcm_img)
+    # image = Image.fromarray(dcm_img_gray, mode='L')
+    # # 保存图像
+    # image.save(out_path)
+    cv2.imwrite(out_path, dcm_img)
+
+    # 读取保存的图像
+    image = cv2.imread(out_path)
+
+    # 创建锐化滤波器
+    sharpening_kernel = np.array([[0, -1, 0],
+                             [-1, 5, -1],
+                             [0, -1, 0]])
+    # 应用图像增强技术，例如锐化滤波器
+    sharpened_image = cv2.filter2D(image, -1, sharpening_kernel)
+
+    # 保存增强后的图像
+    enhanced_path = './static/enhanced.jpg'
+    cv2.imwrite(enhanced_path, sharpened_image)
 
     preprocess_base_img = data_preprocess_base(dcm_img, 224)
     plt.title('data_preprocess_base')
