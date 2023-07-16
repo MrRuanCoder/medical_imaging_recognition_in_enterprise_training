@@ -1,6 +1,7 @@
 import sqlite3
 
 def query(username):
+    global c
     try:
         c = sqlite3.connect('first.db')
         cursor = c.execute(f"SELECT * FROM user WHERE username='{username}'")
@@ -17,6 +18,7 @@ def query(username):
         c.close()
 
 def SQLiteGetAll():
+    global c
     try:
         c = sqlite3.connect('first.db')
         cursor = c.execute("SELECT * FROM user")
@@ -31,9 +33,11 @@ def SQLiteGetAll():
     finally:
         c.close()
 def modify(id,username,password,permission):
+    global c
     try:
         c = sqlite3.connect('first.db')
-        cursor = c.execute(f"UPDATE user SET username='{username}',password='{password}',permission='{permission}' WHERE id='{id}'")
+        c.execute(
+            f"UPDATE user SET username='{username}',password='{password}',permission='{permission}' WHERE id='{id}'")
         c.commit()
         return True
     except Exception as e:
@@ -42,9 +46,11 @@ def modify(id,username,password,permission):
     finally:
         c.close()
 def add(username,password,permission):
+    global c
     try:
         c = sqlite3.connect('first.db')
-        cursor = c.execute(f"INSERT INTO user (username,password,permission,action) VALUES ('{username}','{password}','{permission}','1')")
+        c.execute(
+            f"INSERT INTO user (username,password,permission,action) VALUES ('{username}','{password}','{permission}','1')")
         c.commit()
         return True
     except Exception as e:
@@ -53,6 +59,7 @@ def add(username,password,permission):
     finally:
         c.close()
 def delete(id):
+    global c
     try:
         c = sqlite3.connect('first.db')
         cursor = c.execute(f"DELETE FROM user WHERE id='{id}'")

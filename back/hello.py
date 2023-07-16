@@ -1,19 +1,12 @@
-from flask import Flask
-from flask import request
-from flask import abort, redirect
-from flask import session
-from flask import jsonify
+import traceback
+from datetime import timedelta
+
+from SQLiteDemo import query
 from adminApi import *
+from imageApi import *
 from learnSQL import *
 from learnSQL import db
-import os
-from datetime import timedelta
-from imageApi import *
-from flask import render_template
 
-from flask_login import login_required
-from SQLiteDemo import query
-import traceback
 app = Flask(__name__)
 # Set the secret key to some random bytes. Keep this really secret!
 app.secret_key = '_5#y2L"F4Q8z\n\xec]/1'
@@ -88,21 +81,21 @@ def login():
             return jsonify(code=400, msg='账号或密码错误')
         else:
             return jsonify(msg='登录失败')
-        user = User.query.filter(User.username == username).first() 
-
-        if user is None or password != user.password:
-            return jsonify(code=400, msg="账号或密码错误")
-
-        permission = user.permission
-
-        # 验证通过，保存登录状态在session中
-        session['username'] = username
-        session["id"] = user.id
-        session["permission"] = permission
-        session['logged_in'] = True
-        # session['password'] = password
-        # return home()
-        return jsonify(status=200, msg="登录成功")
+        # user = User.query.filter(User.username == username).first()
+        #
+        # if user is None or password != user.password:
+        #     return jsonify(code=400, msg="账号或密码错误")
+        #
+        # permission = user.permission
+        #
+        # # 验证通过，保存登录状态在session中
+        # session['username'] = username
+        # session["id"] = user.id
+        # session["permission"] = permission
+        # session['logged_in'] = True
+        # # session['password'] = password
+        # # return home()
+        # return jsonify(status=200, msg="登录成功")
 
     except Exception as e:
         traceback.print_exception(type(e), e, e.__traceback__)
@@ -158,4 +151,4 @@ if __name__ == '__main__':
     db.init_app(app)
     with app.app_context():
         db.create_all()
-    app.run()
+    app.run(host='0.0.0.0')
