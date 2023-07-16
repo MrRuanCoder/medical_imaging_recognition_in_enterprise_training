@@ -20,8 +20,8 @@ from imageApi import *
 from flask import render_template
 
 from flask_login import login_required
-
-
+from SQLiteDemo import query
+import traceback
 app = Flask(__name__)
 # Set the secret key to some random bytes. Keep this really secret!
 app.secret_key = '_5#y2L"F4Q8z\n\xec]/1'
@@ -59,7 +59,7 @@ def home():
         return render_template('index.html')
         
 
-@app.route('/api', methods=['POST'])
+@app.route('/api/login', methods=['POST'])
 def login():
     try:
         get_data = request.get_json()    
@@ -68,7 +68,22 @@ def login():
     
         if not all([username,password]):
             return jsonify(code=400, msg='参数不完整')
-        
+        arr= query(username)
+        if arr is not None:
+            for i in arr:
+                if i[2]==password:
+                    permission = i[3]
+                    # 验证通过，保存登录状态在session中
+                    session['username'] = username
+                    session["id"] = i[0]
+                    session["permission"] = permission
+                    session['logged_in'] = True
+                    # session['password'] = password
+                    return jsonify(code=200, msg="登录成功")
+                    # return home()
+            return jsonify(code=400, msg='账号或密码错误')
+        else:
+            return jsonify(msg='登录失败')
         user = User.query.filter(User.username == username).first() 
 
         if user is None or password != user.password:
@@ -85,7 +100,7 @@ def login():
         return home()
     
     except Exception as e:
-        print(e)
+        traceback.print_exception(type(e), e, e.__traceback__)
         return jsonify(msg='登录失败')   
 
 
