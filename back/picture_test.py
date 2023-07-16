@@ -66,7 +66,7 @@ def data_preprocess_base2(img, size):
 
 
 if __name__ == '__main__':
-    dcm_path = "./nettest/data/images/00001.dcm"
+    dcm_path = "./data/images/00002.dcm"
 
     absolute_path = os.path.abspath(dcm_path)
     print("绝对路径:", absolute_path)

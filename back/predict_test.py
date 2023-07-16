@@ -7,7 +7,20 @@ from numpy import array
 from torch.utils import data
 from torchvision.transforms import transforms
 
+import sys
+import os
+
+# 获取当前文件的绝对路径
+current_file = os.path.abspath(__file__)
+
+# 获取当前文件所在的目录
+current_dir = os.path.dirname(current_file)
+
+# 将当前目录添加到 sys.path 中
+sys.path.append(current_dir)
+
 import model_train
+# from . import model_train
 import network_L3 as network
 
 from picture_test import data_preprocess_base
@@ -46,6 +59,38 @@ def test_alexnet(model_name, picture_path=None):
 
     return images, test_true, test_pred
 
+def output_alexnet(model_name, picture_path=None):
+    print('------ Testing Start ------')
+    model = network.initialize_model(backbone=model_train.backbone, pretrained=model_train.pretrained,
+                                     NUM_CLASS=model_train.NUM_CLASS)
+    model.load_state_dict(torch.load(model_name), False)
+    test_pred = []
+    test_true = []
+
+    with torch.no_grad():
+        model.eval()
+        predict_loader = get_dataset(224, 1, picture_path)
+        for test_x, test_y in predict_loader:
+            # add 1 row
+            images, labels = test_x, test_y
+            if torch.cuda.is_available():
+                images, labels = test_x.cuda(), test_y.cuda()
+            # print('images:')
+            # print(images)
+            output = model(images)
+            # print(output)
+            _, predicted = torch.max(output.data, 1)
+            print(predicted)
+            test_pred = np.hstack((test_pred, predicted.detach().cpu().numpy()))
+            test_true = np.hstack((test_true, labels.detach().cpu().numpy()))
+
+    # images = predict_loader.dataset.train_img
+    # test_acc = 100 * metrics.accuracy_score(test_true, test_pred)
+    # test_classification_report = metrics.classification_report(test_true, test_pred, digits=4)
+    # print('test_classification_report\n', test_classification_report)
+    # print('Accuracy of the network is: %.4f %%' % test_acc)
+
+    return predicted
 
 def data_load(size, picture=None, picture_mode: str = 'path'):
     dicomlist = []  # 图像地址

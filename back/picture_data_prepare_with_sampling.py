@@ -7,9 +7,11 @@ from pylab import *
 from sklearn.model_selection import train_test_split
 from torchvision.transforms import transforms
 
-from picture_test import data_preprocess_base
+# from picture_test import data_preprocess_base
+# from .picture_test import data_preprocess_base
+import picture_test
 
-PATH = 'C:/Users/Ruan/Desktop/project/medical_imaging_recognition_in_enterprise_training/nettest/data/labels.csv'  # 数据集路径
+PATH = 'C:/Users/Ruan/Desktop/project/medical_imaging_recognition_in_enterprise_training/back/data/labels.csv'  # 数据集路径
 TEST_PATH = ''  # 测试集路径
 is_train = False  # True-训练模型  False-测试模型
 SIZE = 224  # 图像进入网络的大小
@@ -49,7 +51,7 @@ def data_load(path, test_path, size, is_train):
         labels.append(label)
     labels = np.array(labels)  # 图像标签 n*1
     # 读取图像矩阵
-    images = array([data_preprocess_base(pydicom.read_file(dcm).pixel_array, size) for dcm in dicomlist])
+    images = array([picture_test.data_preprocess_base(pydicom.read_file(dcm).pixel_array, size) for dcm in dicomlist])
     f.close()
 
     # (2)划分数据集

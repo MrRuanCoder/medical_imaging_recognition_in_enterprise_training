@@ -9,12 +9,10 @@ from flask import render_template
 import socket
 import pydicom
 from io import BytesIO
-import numpy
+import numpy as np
 from PIL import Image
 
-import sys
-sys.path.append("..") 
-from nettest.predict_test import *
+from predict_test import test_alexnet, output_alexnet
 
 
 #单个图像处理
@@ -36,6 +34,8 @@ def zipImage1():
     upload_path = os.path.join(savepath, secure_filename(f.filename))
     f.save(upload_path)
 
+    dcm_filenames = []
+
     if zipfile.is_zipfile(upload_path):  # 判断是否为zip文件
         zf = zipfile.ZipFile(upload_path, 'r')  # 设置文件为可读
         stem, suffix = os.path.splitext(f.filename)  # 提取文件名称
@@ -44,7 +44,26 @@ def zipImage1():
         zf.extractall(target_dir)  # 解压至指定目录
         zf.close()
 
-    return jsonify(msg='文件上传成功')
+        # 遍历目标目录，获取所有dcm文件的名称
+        for root, dirs, files in os.walk(target_dir):
+            for file in files:
+                if file.lower().endswith('.dcm'):
+                    dcm_filename = os.path.join(root, file)
+                    dcm_filenames.append(dcm_filename)
+        
+        
+    length = len(dcm_filenames)
+
+    predictoutput=[]    #Tensor 类型不可JSON 可序列化
+
+    for(dcm_filename, i) in zip(dcm_filenames, range(length)):
+        # predictoutput.append(output_alexnet('model/L1_model.pkl', dcm_filename))
+        # print(output_alexnet('model/L1_model.pkl', dcm_filename))
+        tensor_output = output_alexnet('model/L1_model.pkl', dcm_filename)
+        predictoutput.append(tensor_output.tolist())
+
+    # return jsonify(msg='文件上传成功')
+    return jsonify(msg='文件上传成功', dcm_filenames=dcm_filenames, length=length, predictoutput=predictoutput)
 
 def zipImage2(): 
     pass
