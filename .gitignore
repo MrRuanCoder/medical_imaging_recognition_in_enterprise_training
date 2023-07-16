@@ -1,6 +1,8 @@
 /opt/
 /nettest/model/
 /nettest/data/
+/back/nettest/model/
+/back/nettest/data/
 .idea
 *.zip`
 *$py.class

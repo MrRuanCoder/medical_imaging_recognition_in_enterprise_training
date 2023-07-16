@@ -9,7 +9,7 @@ from torchvision.transforms import transforms
 
 from picture_test import data_preprocess_base
 
-PATH = 'C:/Users/Ruan/Desktop/project/medical_imaging_recognition_in_enterprise_training/nettest/data/labels.csv'  # 数据集路径
+PATH = 'C:/Users/Ruan/Desktop/project/medical_imaging_recognition_in_enterprise_training/back/nettest/data/labels.csv'  # 数据集路径
 TEST_PATH = ''  # 测试集路径
 is_train = False  # True-训练模型  False-测试模型
 SIZE = 224  # 图像进入网络的大小

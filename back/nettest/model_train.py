@@ -18,7 +18,7 @@ import matplotlib.pyplot as plt
 # print('===============================================model:model_train=================================================')
 
 # 参数设置
-PATH = 'C:/Users/Ruan/Desktop/project/medical_imaging_recognition_in_enterprise_training/nettest/data/labels.csv'
+PATH = 'C:/Users/Ruan/Desktop/project/medical_imaging_recognition_in_enterprise_training/back/nettest/data/labels.csv'
 TEST_PATH = ''
 is_train = False  # True-训练模型  False-测试模型
 save_model_name = 'model/L1_model.pkl'
@@ -189,7 +189,7 @@ if __name__ == '__main__':
 
 # 保存模型
     model_name = 'model/L3_resnet18_best_model.pkl'
-    torch.save(model.state_dict(), 'C:/Users/Ruan/Desktop/project/medical_imaging_recognition_in_enterprise_training/nettest/model/L3_resnet18_best_model.pkl')
+    torch.save(model.state_dict(), 'C:/Users/Ruan/Desktop/project/medical_imaging_recognition_in_enterprise_training/back/nettest/model/L3_resnet18_best_model.pkl')
 
 # 加载模型
     model.load_state_dict(torch.load(model_name), False)

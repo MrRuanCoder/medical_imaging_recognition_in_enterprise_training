@@ -12,10 +12,7 @@ from io import BytesIO
 import numpy
 from PIL import Image
 
-import sys
-sys.path.append("..") 
-from nettest.predict_test import *
-
+from nettest import predict_test
 
 #单个图像处理
 def singleImage():
