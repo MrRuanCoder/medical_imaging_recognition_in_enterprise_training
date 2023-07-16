@@ -168,8 +168,8 @@
         'Content-Type': 'application/json'
       }
       , body: JSON.stringify({
-        id: id.value,
-        pwd: pwd.value,
+        username: id.value,
+        passwords: pwd.value,
         remember: remember.checked ? 1 : 0
       })
     }).then(e => {
