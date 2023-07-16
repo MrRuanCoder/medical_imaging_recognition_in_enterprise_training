@@ -1,11 +1,13 @@
-/opt/
+/back/opt/
 /nettest/model/
 /nettest/data/
 /back/model/
 /back/data/
 .idea
-*.zip`
+*.zip
 *$py.class
+*.dcm
+*.png
 
 # C extensions
 *.so
