@@ -48,7 +48,7 @@ def modify(id,username,password,permission):
     try:
         c = sqlite3.connect(realpath())
         c.execute(
-            f"UPDATE user SET username='{username}',password='{password}',permission='{permission}' WHERE id='{id}'")
+            f"UPDATE user SET username='{username}',password='{password}' WHERE id='{id}'")
         c.commit()
         return True
     except Exception as e:
@@ -61,7 +61,7 @@ def add(username,password,permission):
     try:
         c = sqlite3.connect(realpath())
         c.execute(
-            f"INSERT INTO user (username,password,permission,action) VALUES ('{username}','{password}','{permission}','1')")
+            f"INSERT INTO user (username,password,permission,action) VALUES ('{username}','{password}','1','1')")
         c.commit()
         return True
     except Exception as e:
@@ -73,9 +73,11 @@ def delete(id):
     global c
     try:
         c = sqlite3.connect(realpath())
-        cursor = c.execute(f"DELETE FROM user WHERE id='{id}'")
+        c.execute(f"DELETE FROM user WHERE id='{id}' AND permission!='0'")
         c.commit()
-        return True
+        rows_deleted = c.total_changes
+        print(rows_deleted)
+        return rows_deleted > 0
     except Exception as e:
         print(e)
         return False

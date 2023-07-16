@@ -95,7 +95,7 @@ def user_delete():
         if 'permission' in session and session['permission'] != '0':
             return jsonify(code=400, msg="无权限进行操作")
         if delete(user_id)==False:
-            return jsonify(code=400, msg="用户不存在")
+            return jsonify(code=400, msg="用户无法删除")
         # db.session.delete(user)  # 删除用户对象
         # db.session.commit()  # 提交数据库事务
 
