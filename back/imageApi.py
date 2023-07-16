@@ -1,7 +1,7 @@
 
 from flask import jsonify, request, session
 from werkzeug.utils import secure_filename
-from learnSQL import User, db  
+# from learnSQL import User, db  
 import os
 import zipfile
 from werkzeug.utils import secure_filename
@@ -9,6 +9,8 @@ from flask import render_template
 import socket
 import pydicom
 from io import BytesIO
+import numpy
+from PIL import Image
 
 #单个图像处理
 def singleImage():
@@ -49,8 +51,10 @@ def transformImage():
 
 # IPV4/TCP 协议
     tcp_client_socket = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
+    print(tcp_client_socket)
 # 2 和服务器端建立连接
-    tcp_client_socket.connect(('127.0.0.0',8080))
+    # tcp_client_socket.connect(('10.203.98.3',8080))
+    tcp_client_socket.connect(('127.0.0.1',8080))
 # 3 发送数据，必须是字节流
 # encode(把字符串转为bytes) decode（把bytes转为字符串）
 #     # while True:
@@ -69,21 +73,55 @@ def transformImage():
 # 发送数据
     tcp_client_socket.send(image_data)
 
-# 接收服务器返回的数据
-    recv_data = tcp_client_socket.recv(1024).decode('gbk')
-    print('服务器：', recv_data)
+# # 接收服务器返回的数据
+#     recv_data = tcp_client_socket.recv(1024*1024*10).decode('gbk')
+#     # print('服务器：', recv_data)
+#     print(tcp_client_socket)
+#     # recv_data = tcp_client_socket.recv(1024*1024*100)
+#     print( recv_data)
+#     try:
+#         recv_data = recv_data.decode('gbk')
+#         print('服务器：', recv_data)
+#     except UnicodeDecodeError:
+#         # 如果解码出错，尝试使用其他编码方式进行解码
+#         recv_data = recv_data.decode('utf-8')
+#         print('服务器（使用UTF-8解码）：', recv_data)
 
-    try:
-        dcm_data = pydicom.dcmread(BytesIO(recv_data))
-        if dcm_data.file_meta.FileMetaInformationVersion:
-            print('服务器返回的数据是DICOM图片')
-        # 在这里添加处理DICOM图片的逻辑
-        else:
-            print('服务器返回的数据不是DICOM图片')
-        # 在这里添加处理非DICOM图片的逻辑
-    except pydicom.errors.InvalidDicomError:
-        print('服务器返回的数据不是DICOM图片')
-    # 在这里添加处理非DICOM图片的逻辑
+#     try:
+#         dcm_data = pydicom.dcmread(BytesIO(recv_data))
+#         if dcm_data.file_meta.FileMetaInformationVersion:
+#             print('服务器返回的数据是DICOM图片')
+#         # 在这里添加处理DICOM图片的逻辑
+#         else:
+#             print('服务器返回的数据不是DICOM图片')
+#         # 在这里添加处理非DICOM图片的逻辑
+#     except pydicom.errors.InvalidDicomError:
+#         print('服务器返回的数据不是DICOM图片')
+#     # 在这里添加处理非DICOM图片的逻辑
 
-# 关闭套接字对象
+# # 关闭套接字对象
+#     tcp_client_socket.close()
+
+    # 接收服务端返回的PNG图像数据
+    png_data = b""
+    while True:
+        recv_data = tcp_client_socket.recv(1024*1024)
+        if not recv_data:
+            break
+        png_data += recv_data
+
+    # 保存PNG图像数据为本地文件
+    output_path = './received_image.png'
+    with open(output_path, 'wb') as file:
+        file.write(png_data)
+
+    # 关闭套接字对象
     tcp_client_socket.close()
+
+    # 显示接收到的PNG图像
+    image = Image.open(output_path)
+    image.show()
+
+
+if __name__ == '__main__':
+    transformImage()

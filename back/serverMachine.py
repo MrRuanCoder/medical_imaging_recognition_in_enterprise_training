@@ -28,9 +28,18 @@ def handle_client_request(service_client_socket, ip_port):
         # 例如，可以获取DICOM属性，修改像素数据等
 
         # 发送保存下来的DICOM图片数据给客户端
-        with open(image_path, 'rb') as file:
-            dcm_data = file.read()
-            service_client_socket.send(dcm_data)        
+        # with open(image_path, 'rb') as file:
+        #     dcm_data = file.read()
+        #     # 打印发送的数据大小
+        #     print("发送的数据大小:", len(dcm_data))
+        #     service_client_socket.send(dcm_data)        
+
+        # 读取PNG文件数据
+        with open('../opt/upload/output.png', 'rb') as file:
+            png_data = file.read()
+
+        # 发送保存下来的PNG图片数据给客户端
+        service_client_socket.send(png_data)
 
         # # 将处理后的DICOM数据转换为字节流
         # processed_image_data = dcm_data.pixel_array.tobytes()
@@ -57,12 +66,12 @@ if __name__ == '__main__':
     # 设置监听，一般为5，最大为128
     tcp_server_socket.listen(5)
 
-    while True:
-        # 接收客户端套接字对象
-        service_client_socket, ip_port = tcp_server_socket.accept()
-        # 创建线程，传入套接字对象数据
-        sub_thread = threading.Thread(target=handle_client_request, args=(service_client_socket, ip_port))
-        # 守护主线程
-        sub_thread.setDaemon(True)
-        # 运行线程
-        sub_thread.start()
+    # while True:
+    # 接收客户端套接字对象
+    service_client_socket, ip_port = tcp_server_socket.accept()
+    # 创建线程，传入套接字对象数据
+    sub_thread = threading.Thread(target=handle_client_request, args=(service_client_socket, ip_port))
+    # 守护主线程
+    sub_thread.setDaemon(True)
+    # 运行线程
+    sub_thread.start()
