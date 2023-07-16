@@ -50,7 +50,7 @@ def home():
         return render_template('index.html')
         
 
-@app.route('/api', methods=['POST'])
+@app.route('/api/login', methods=['POST'])
 def login():
     try:
         get_data = request.get_json()    
@@ -60,10 +60,10 @@ def login():
         if not all([username,password]):
             return jsonify(code=400, msg='参数不完整')
         
-        user = User.query.filter(User.username == username).first() 
+        user = User.query.filter(User.username == username).first()     
 
         if user is None or password != user.password:
-            return jsonify(code=400, msg="账号或密码错误")
+            return jsonify(code=400, msg="账号密码错误1")
 
         permission = user.permission
 
@@ -73,7 +73,8 @@ def login():
         session["permission"] = permission
         session['logged_in'] = True
             # session['password'] = password
-        return home()
+        # return home()
+        return jsonify(status=200, msg="登录成功")
     
     except Exception as e:
         print(e)
