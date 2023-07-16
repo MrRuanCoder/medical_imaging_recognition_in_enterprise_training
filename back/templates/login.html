@@ -112,8 +112,8 @@
       </svg></a>
     <div>
       <h1>医学影像识别</h1>
-      <input placeholder="请输入账号">
-      <input type="password" placeholder="请输入密码">
+      <input placeholder="请输入账号" value="Admin">
+      <input type="password" placeholder="请输入密码" value="123456">
       <div><input type="checkbox" id="checkbox"><label for="checkbox">记住密码</label></div>
       <button id="login">登录</button>
     </div>
@@ -182,7 +182,8 @@
     }).then(e => {
       localStorage.username = e.username;
       localStorage.permission = e.permission;
-      setTimeout(() => location.href = 'index.html')
+      location.reload();
+      // setTimeout(() => location.href = 'index.html')
     }).catch(err => console.log(err))
   }
 </script>
