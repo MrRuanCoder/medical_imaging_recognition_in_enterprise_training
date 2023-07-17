@@ -83,7 +83,7 @@ def zipDownload():
     # print(files+'@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@')  不能打印列表？
 
     # 创建一个临时目录来保存待打包的文件
-    temp_dir = f'./temp/{int(time.time())}'  # 使用时间戳创建一个唯一的文件夹路径
+    temp_dir = f'./static/temp/{int(time.time())}'  # 使用时间戳创建一个唯一的文件夹路径
     os.makedirs(temp_dir, exist_ok=True)    #exist_ok存在是否会引发异常
 
     # # 复制文件到临时目录
@@ -111,7 +111,7 @@ def zipDownload():
 
     # 创建以时间戳命名的ZIP文件
     timestamp = str(int(time.time()))
-    zip_file_path = f'./temp/files_{timestamp}.zip'
+    zip_file_path = f'./static/temp/files_{timestamp}.zip'
     with zipfile.ZipFile(zip_file_path, 'w') as zip_file:
         for root, _, files in os.walk(temp_dir):
             for file in files:
@@ -133,6 +133,7 @@ def zipDownload():
     # return send_file(zip_file_path, as_attachment=True, attachment_filename='files.zip')
     #返回ZIP文件的相对路径
     return zip_file_path
+    # return os.path.abspath(zip_file_path)
     # relative_path = os.path.relpath(zip_file_path, './')
     # return jsonify({'path': relative_path})
 
