@@ -408,6 +408,9 @@
             }
           }
         }
+        for (let i = 0; i < downloadButtons.length; i++) {
+          downloadButtons[i].style.display = ReceivedResult.every(e => e.Artifact != i ^ 1) ? 'none' : 'inline-block'
+        }
       })
     })
       .catch(e => {
@@ -440,9 +443,9 @@
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({ fileList: bodyArray })
-    }).then(e => e.json()).then(e => {
+    }).then(e => e.text()).then(e => {
       toggle('下载成功')
-      open(e.path)
+      open(e)
     }).catch(e => {
       toggle('对不起, 下载失败')
       console.log(e);
