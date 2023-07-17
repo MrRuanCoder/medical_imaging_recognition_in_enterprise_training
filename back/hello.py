@@ -122,29 +122,21 @@ def check_session():
         return jsonify(msg='未登录')
 
 # 创建用户 (增)
-
-
 @app.route("/api/add", methods=["POST"])
 def user_add0():
     return user_add()
 
 # 获得所有用户（查所有）
-
-
 @app.route("/api/all", methods=['GET',"POST"])
 def getAll0():
     return getAll()
 
 # 修改用户(改)
-
-
 @app.route("/api/update", methods=["POST"])
 def user_update0():
     return user_update()
 
 # 删除用户
-
-
 @app.route("/api/delete", methods=["DELETE"])
 def user_delete0():
     return user_delete()
@@ -154,6 +146,9 @@ def user_delete0():
 def zipImage1_():
     return zipImage1()
 
+@app.route('/api/download', methods=['POST', 'GET'])  
+def zipDownload():
+    return zipDownload()
 
 ##########################################################################################################
 if __name__ == '__main__':
