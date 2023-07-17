@@ -6,6 +6,7 @@ import os
 import zipfile
 from werkzeug.utils import secure_filename
 from flask import render_template
+from flask import send_file
 import socket
 import pydicom
 from io import BytesIO
@@ -60,15 +61,47 @@ def zipImage1():
     for(dcm_filename, i) in zip(dcm_filenames, range(length)):
         # predictoutput.append(output_alexnet('model/L1_model.pkl', dcm_filename))
         # print(output_alexnet('model/L1_model.pkl', dcm_filename))
-        tensor_output = output_alexnet('model/L1_model.pkl', dcm_filename)
+        tensor_output = output_alexnet('model/L2_model.pkl', dcm_filename)
         predictoutput.append(tensor_output.tolist())
         image_deal_transfer(dcm_filename)
 
     # return jsonify(msg='文件上传成功')
     return jsonify(msg='文件上传成功', dcm_filenames=dcm_filenames, length=length, predictoutput=predictoutput)
 
-def zipImage2(): 
-    pass
+def zipDownload(): 
+# 假设前端发送的请求中包含的相对路径文件列表存储在files变量中
+    # files = [
+    #     './static/file1.txt',
+    #     './static/file2.txt',
+    #     './static/file3.txt'
+    # ]
+    
+    files = request.form.getlist('fileList')  # 获取前端请求中的文件列表
+
+    # 创建一个临时目录来保存待打包的文件
+    temp_dir = './temp'
+    os.makedirs(temp_dir, exist_ok=True)    #exist_ok存在是否会引发异常
+
+    # 复制文件到临时目录
+    for file in files:
+        file_name = file.split('/')[-1]  # 提取文件名
+        destination = os.path.join(temp_dir, file_name)
+        os.makedirs(os.path.dirname(destination), exist_ok=True)
+        os.system(f'cp {file} {destination}')
+
+    # 创建zip文件
+    zip_file_path = './temp/files.zip'
+    with zipfile.ZipFile(zip_file_path, 'w') as zip_file:
+        for root, _, files in os.walk(temp_dir):
+            for file in files:
+                file_path = os.path.join(root, file)
+                zip_file.write(file_path, os.path.relpath(file_path, temp_dir))
+
+    # 删除临时目录
+    os.system(f'rm -rf {temp_dir}')
+
+    # 发送zip文件给前端
+    return send_file(zip_file_path, as_attachment=True, attachment_filename='files.zip')
 
 def transformImage():
     image_path = '../opt/upload/00001.dcm'  # DICOM文件路径

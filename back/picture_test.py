@@ -99,12 +99,44 @@ def convert_dcm_to_jpg_path(dcm_path):
     # 将反斜杠转换为正斜杠
     dcm_path = dcm_path.replace('\\', '/')
     # 从dcm_path中提取文件名（不包含扩展名）
-    file_name = dcm_path.split('/')[-1].split('.')[0]
+    file_name = dcm_path.split('/')[-1].rsplit('.', 1)[0]
     # 构造转换后的jpg路径
     jpg_path = './static/' + file_name + '.jpg'
         
     return jpg_path
 
+def windows_pro(img, min_bound=0, max_bound=85):
+    """
+        输入：图像，阈值下限min_bound，阈值上限max_bound
+        处理过程：先获取指定限制范围内的值[min_bound,max_bound]，再中心化、归一化
+        输出：阈值范围缩减后中心化归一化结果[0,255]
+    """
+    img[img > max_bound] = max_bound
+    img[img < min_bound] = min_bound  # [min_bound, max_bound]
+    img = img - min_bound  # 中心化[0,max_bound+min_bound]
+    img = normalize(img)  # 归一化 [0,255]
+    return img
+
+
+def equalize_hist(img):
+    img = img.astype(np.uint8)
+    img = cv2.equalizeHist(img)
+    return img
+
+def data_preprocess_enhanced(img, size):
+    # step1: 图像阈值范围缩减 [min_bound, max_bound]
+    img = windows_pro(img)
+    # step2: 直方图均衡 [0, 255]
+    img = equalize_hist(img)
+    # step3: 缩放尺寸 224*224
+    img = img_resize(img, size)
+    # step4: 归一化[0,255]
+    img = normalize(img)
+    # step5: 扩展为3通道 224*224*3
+    img = extend_channels(img)
+    # Step6: 转换为unit8格式
+    img = img.astype(np.uint8)
+    return img
 
 if __name__ == '__main__':
     dcm_path = "./data/images/00002.dcm"
@@ -169,40 +201,40 @@ if __name__ == '__main__':
     plt.show()
 
 
-    def windows_pro(img, min_bound=0, max_bound=85):
-        """
-            输入：图像，阈值下限min_bound，阈值上限max_bound
-            处理过程：先获取指定限制范围内的值[min_bound,max_bound]，再中心化、归一化
-            输出：阈值范围缩减后中心化归一化结果[0,255]
-        """
-        img[img > max_bound] = max_bound
-        img[img < min_bound] = min_bound  # [min_bound, max_bound]
-        img = img - min_bound  # 中心化[0,max_bound+min_bound]
-        img = normalize(img)  # 归一化 [0,255]
-        return img
+    # def windows_pro(img, min_bound=0, max_bound=85):
+    #     """
+    #         输入：图像，阈值下限min_bound，阈值上限max_bound
+    #         处理过程：先获取指定限制范围内的值[min_bound,max_bound]，再中心化、归一化
+    #         输出：阈值范围缩减后中心化归一化结果[0,255]
+    #     """
+    #     img[img > max_bound] = max_bound
+    #     img[img < min_bound] = min_bound  # [min_bound, max_bound]
+    #     img = img - min_bound  # 中心化[0,max_bound+min_bound]
+    #     img = normalize(img)  # 归一化 [0,255]
+    #     return img
 
 
-    def equalize_hist(img):
-        img = img.astype(np.uint8)
-        img = cv2.equalizeHist(img)
-        return img
+    # def equalize_hist(img):
+    #     img = img.astype(np.uint8)
+    #     img = cv2.equalizeHist(img)
+    #     return img
 
 
     # 可选：图像预处理（伪影增强）
-    def data_preprocess_enhanced(img, size):
-        # step1: 图像阈值范围缩减 [min_bound, max_bound]
-        img = windows_pro(img)
-        # step2: 直方图均衡 [0, 255]
-        img = equalize_hist(img)
-        # step3: 缩放尺寸 224*224
-        img = img_resize(img, size)
-        # step4: 归一化[0,255]
-        img = normalize(img)
-        # step5: 扩展为3通道 224*224*3
-        img = extend_channels(img)
-        # Step6: 转换为unit8格式
-        img = img.astype(np.uint8)
-        return img
+    # def data_preprocess_enhanced(img, size):
+    #     # step1: 图像阈值范围缩减 [min_bound, max_bound]
+    #     img = windows_pro(img)
+    #     # step2: 直方图均衡 [0, 255]
+    #     img = equalize_hist(img)
+    #     # step3: 缩放尺寸 224*224
+    #     img = img_resize(img, size)
+    #     # step4: 归一化[0,255]
+    #     img = normalize(img)
+    #     # step5: 扩展为3通道 224*224*3
+    #     img = extend_channels(img)
+    #     # Step6: 转换为unit8格式
+    #     img = img.astype(np.uint8)
+    #     return img
 
 
     preprocess_enhanced_img = data_preprocess_enhanced(dcm_img, 224)
