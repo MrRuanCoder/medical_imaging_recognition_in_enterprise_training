@@ -305,12 +305,11 @@
       // button.disabled = false;
       toggle('上传成功');
       result.style.display = 'block';
-      console.log(e);
-      for (let i of e.result) {
-        const img = document.createElement("img");
-        img.src = i
-        result.appendChild(img)
-      }
+      // for (let i of e.result) {
+      //   const img = document.createElement("img");
+      //   img.src = i
+      //   result.appendChild(img)
+      // }
     }).catch(e => {
       // button.disabled = false;
       toggle('对不起, 上传失败')
