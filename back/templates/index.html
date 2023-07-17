@@ -180,7 +180,7 @@
     }
 
     img {
-      max-width: 30%;
+      /* max-width: 30%; */
     }
 
     .result {
@@ -195,6 +195,21 @@
     #result {
       display: none;
     }
+
+    #result>table {
+      margin: 0 auto;
+    }
+
+    #result>table>tbody:nth-child(1)>tr:nth-child(2)>td {
+      font-size: 1ch;
+      padding: 0 9q;
+    }
+
+    #result>button {
+      margin: 0 9q;
+      padding: 5q 9q;
+      cursor: pointer;
+    }
   </style>
 </head>
 
@@ -203,9 +218,9 @@
   <div id="main">
     <!-- <div class='frame'> -->
     <img id="previewImage">
-    <div id="fileButton"><input type="file">
+    <div id="fileButton"><input type="file" id="fileUpload">
       <br>
-      <label for="fileButton" id="tip">
+      <label for="fileUpload" id="tip">
         请上传zip压缩文件
       </label>
       <br>
@@ -217,6 +232,14 @@
       <div id="result">
         <hr>
         <p class="result">识别结果</p>
+        <table>
+          <tr></tr>
+          <tr></tr>
+        </table>
+        <hr>
+        <p class="result">下载结果</p>
+        <button>有伪影</button><button>无伪影</button>
+
       </div>
 
       <!-- <hr> -->
@@ -270,6 +293,10 @@
   const upload = document.getElementById('upload');
   const sideLi = document.querySelectorAll('#side>ul>li')
   const result = document.getElementById('result')
+  const resultTable = result.querySelector('table')
+  const resultTableTrs = resultTable.getElementsByTagName('tr');
+  const downloadButtons = result.getElementsByTagName('button')
+  const ReceivedResult = [];
   // const frame = document.getElementsByClassName('frame')
   button.onclick = function () {
     result.style.display = 'none'
@@ -297,32 +324,68 @@
     //     console.log(xhr.responseText)
     //   }
     // }
+    function getLastSegment (t, e) { const n = e.split(t); return n[n.length - 1] }
     fetch('api/file', {
       method: "POST",
       body: formData
     }).then(e => e.json()).then(e => {
-      // document.querySelector('div').innerText = e;
-      // button.disabled = false;
-      toggle('上传成功');
       result.style.display = 'block';
-      // for (let i of e.result) {
-      //   const img = document.createElement("img");
-      //   img.src = i
-      //   result.appendChild(img)
+      ReceivedResult.length = 0;
+      resultTable.innerHTML = '<tr></tr><tr></tr>';
+      // for (let i of resultTableTrs) {
+      //   i.innerHTML = ''
       // }
+      toggle('上传成功');
+      for (let i = 0; i < e.dcm_filenames.length; i++) {
+        ReceivedResult.push({ filePath: e.dcm_filenames[i].replace('\\', '/'), Artifact: e.predictoutput[i][0] })
+      }
+      console.log(ReceivedResult);
+      setTimeout(() => {
+        for (let i of ReceivedResult) {
+          const td1 = document.createElement('td')
+          td1.innerHTML = '<img src="static/' + getLastSegment('/', i.filePath).split('.')[0] + '.jpg">'
+          resultTableTrs[0].appendChild(td1)
+          const td2 = document.createElement('td')
+          td2.innerText = i.Artifact ? '有伪影' : '无伪影'
+          resultTableTrs[1].appendChild(td2)
+        }
+      })
+    })
+      .catch(e => {
+        // button.disabled = false;
+        toggle('对不起, 上传失败')
+        console.log(e);
+      })
+      .then(() => {
+        circleParent.style.display = "none";
+        upload.style.display = "inline-block";
+        button.disabled = false;
+        // fileInput.value = null;
+        tip.style.display = "inline-block";
+      })
+  }
+  function download (index) {
+    const filterResult = ReceivedResult.filter(item => item.Artifact == index)
+    const bodyArray = []
+    for (let i of filterResult) {
+      bodyArray.push(i.filePath)
+    }
+    fetch('api/download', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ fileList: bodyArray })
+    }).then(e => e.json()).then(e => {
+      toggle('下载成功')
+      open(e.path)
     }).catch(e => {
-      // button.disabled = false;
-      toggle('对不起, 上传失败')
+      toggle('对不起, 下载失败')
       console.log(e);
-    }).then(() => {
-      circleParent.style.display = "none";
-      upload.style.display = "inline-block";
-      button.disabled = false;
-      // fileInput.value = null;
-      tip.style.display = "inline-block";
     })
   }
-
+  downloadButtons[0].onclick = () => download(1)
+  downloadButtons[1].onclick = () => download(0)
   fileInput.onchange = function () {
     const file = fileInput.files[0]
     if (file && file.name.endsWith('.zip') && file.type === 'application/x-zip-compressed') {

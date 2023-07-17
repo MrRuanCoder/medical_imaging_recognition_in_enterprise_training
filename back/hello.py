@@ -3,12 +3,10 @@ from datetime import timedelta
 
 from SQLiteDemo import query
 from adminApi import *
-from imageApi import *
 from learnSQL import *
 from learnSQL import db
 import os
 from datetime import timedelta
-from imageApi import *
 from flask import render_template
 from imageApi import *
 from serverMachine import *
