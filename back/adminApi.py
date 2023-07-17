@@ -18,10 +18,10 @@ def user_add():
         
         # db.session.add(user)
         # db.session.commit()
-        if add(username, password, permission) == True:
+        if add(username, password):
             return jsonify(code=200, msg="新增用户成功")
         else:
-            return jsonify(code=400, msg="新增用户失败")
+            return jsonify(code=400, msg="新增用户失败, 可能用户名已存在")
     except Exception as e:
         print(e)
         db.session.rollback()
@@ -74,8 +74,8 @@ def user_update():
         # user.action = action
         #
         # db.session.commit()  # 提交数据库事务
-        if modify(id,username, password, permission) == False:
-            return jsonify(code=400, msg="用户信息更新失败")
+        if modify(id, username, password) == False:
+            return jsonify(code=400, msg="用户信息更新失败, 可能用户名已存在")
         return jsonify(code=200, msg="用户信息更新成功")
     
     except Exception as e:

@@ -4,8 +4,8 @@ def realpath():
     path1 = os.path.dirname(__file__) + os.sep + 'first.db'
     path2 = os.getcwd() + os.sep + 'first.db'
     path = ''
-    print('path1: ', path1)
-    print('path2: ', path2)
+    # print('path1: ', path1)
+    # print('path2: ', path2)
     if (os.path.exists(path1)):
         path = path1
     elif (os.path.exists(path2)):
@@ -15,11 +15,9 @@ def query(username):
     global c
     try:
         c = sqlite3.connect(realpath())
-        cursor = c.execute(f"SELECT * FROM user WHERE username='{username}'")
-        c.commit()
-        arr=[]
+        cursor = c.execute("SELECT * FROM user WHERE username=?", (username,)) #防止sql注入
+        arr = []
         for row in cursor:
-            # print(row)
             arr.append(row)
         return arr
     except Exception as e:
@@ -43,10 +41,20 @@ def SQLiteGetAll():
         return False
     finally:
         c.close()
-def modify(id,username,password,permission):
+def modify(id, username, password):
     global c
     try:
         c = sqlite3.connect(realpath())
+        cursor = c.cursor()
+
+        # 查询数据库中除了当前 ID 对应的记录外，是否已存在相同的用户名
+        query = f"SELECT username FROM user WHERE username = '{username}' AND id != '{id}'"
+        cursor.execute(query)
+        existing_username = cursor.fetchone()
+
+        if existing_username:
+            # 如果存在相同的用户名，返回 False
+            return False
         c.execute(
             f"UPDATE user SET username='{username}',password='{password}' WHERE id='{id}'")
         c.commit()
@@ -56,10 +64,20 @@ def modify(id,username,password,permission):
         return False
     finally:
         c.close()
-def add(username,password,permission):
+def add(username, password):
     global c
     try:
         c = sqlite3.connect(realpath())
+        cursor = c.cursor()
+
+        # 查询数据库中是否已存在相同的用户名
+        querySQL = f"SELECT username FROM user WHERE username = '{username}'"
+        cursor.execute(querySQL)
+        existing_username = cursor.fetchone()
+
+        if existing_username:
+            # 如果相同的用户名已经存在，返回 False
+            return False
         c.execute(
             f"INSERT INTO user (username,password,permission,action) VALUES ('{username}','{password}','1','1')")
         c.commit()

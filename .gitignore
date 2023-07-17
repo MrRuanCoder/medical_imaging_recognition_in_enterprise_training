@@ -9,6 +9,8 @@
 *.dcm
 *.png
 *.jpg
+*.db
+.lnk
 
 # C extensions
 *.so
@@ -146,3 +148,6 @@ cython_debug/
 .vscode/settings.json
 back/first.db
 .vscode
+back/__pycache__
+back/templates/manager.html
+heidisql.lnk
