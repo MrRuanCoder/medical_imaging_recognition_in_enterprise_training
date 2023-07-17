@@ -61,7 +61,7 @@ def zipImage1():
     for(dcm_filename, i) in zip(dcm_filenames, range(length)):
         # predictoutput.append(output_alexnet('model/L1_model.pkl', dcm_filename))
         # print(output_alexnet('model/L1_model.pkl', dcm_filename))
-        tensor_output = output_alexnet('model/L2_model.pkl', dcm_filename)
+        tensor_output = output_alexnet('model/L3_resnet18_best_model.pkl', dcm_filename)
         predictoutput.append(tensor_output.tolist())
         image_deal_transfer(dcm_filename)
 
