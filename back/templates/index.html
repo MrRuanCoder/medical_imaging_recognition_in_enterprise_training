@@ -445,7 +445,7 @@
       body: JSON.stringify({ fileList: bodyArray })
     }).then(e => e.text()).then(e => {
       toggle('下载成功')
-      open(e)
+      open(e.substring(2))
     }).catch(e => {
       toggle('对不起, 下载失败')
       console.log(e);
