@@ -8,7 +8,7 @@
 | GET      | 管理员账户查询到所有账户       |                                                              | /api/getAll             |                             | 200状态码: {result:[{id:1,userName:"\u5f20\u533b\u751f",pwd:"aabbcc",permission:0},{id:2,userName:"\u5f20\u533b\u751f",pwd:"aabbcc",permission:1}]}或  401状态码 | 对session cookie进行判断,只有管理员账户才能返回200 |
 | GET      | 返回登录界面                   |                                                              | /login.html             |                             | 对cookie进行判断,若已登录则302状态码重定向到index.html,否则200状态码返回login.html |                                                    |
 | GET      | 返回管理员管理界面             |                                                              | /manage.html            |                             | 对cookie进行判断,若已登录且为管理员账户则200状态码返回manage.html,若已登录但不为管理员账户则302状态码重定向到index.html,若未登录则302状态码重定向到login.html |                                                    |
-| POST     | 下载文件                       | ["./opt/upload/testimage\\00001.dcm","./opt/upload/testimage\\00002.dcm"] | /download               |                             | {path:"./opt/upload/testimage\\result.zip"}                  |                                                    |
+| POST     | 下载文件                       | {fileList:["./opt/upload/testimage\\00001.dcm","./opt/upload/testimage\\00002.dcm"]} | /download               |                             | {path:"./opt/upload/testimage\\result.zip"}                  |                                                    |
 
 permission说明:	0是Administrator, 1是Doctor, 2是病人
 
