@@ -13,6 +13,7 @@ import numpy as np
 from PIL import Image
 
 from predict_test import test_alexnet, output_alexnet
+from picture_test import image_deal_transfer 
 
 
 #单个图像处理
@@ -61,6 +62,7 @@ def zipImage1():
         # print(output_alexnet('model/L1_model.pkl', dcm_filename))
         tensor_output = output_alexnet('model/L1_model.pkl', dcm_filename)
         predictoutput.append(tensor_output.tolist())
+        image_deal_transfer(dcm_filename)
 
     # return jsonify(msg='文件上传成功')
     return jsonify(msg='文件上传成功', dcm_filenames=dcm_filenames, length=length, predictoutput=predictoutput)

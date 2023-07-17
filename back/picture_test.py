@@ -80,14 +80,30 @@ def image_deal_transfer(dcm_path):
           '图像最小值=', dcm_img.min(),
           '图像最大值=', dcm_img.max())
     
-    out_path = './output.jpg'
-    plt.imshow(dcm_img)
-    scipy.misc.imsave(out_path,dcm_img)
+    print(dcm_path+'!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+
+    jpg_path = convert_dcm_to_jpg_path(dcm_path)
+    
+    # out_path = './static/output.jpg'
 
     plt.title('dcm_img')
     plt.imshow(dcm_img, cmap='gray')
-    plt.show()    
+    # plt.show()
+    cv2.imwrite(jpg_path, dcm_img)
 
+    # plt.title('dcm_img')
+    # plt.imshow(dcm_img, cmap='gray')
+    # plt.show()    
+
+def convert_dcm_to_jpg_path(dcm_path):
+    # 将反斜杠转换为正斜杠
+    dcm_path = dcm_path.replace('\\', '/')
+    # 从dcm_path中提取文件名（不包含扩展名）
+    file_name = dcm_path.split('/')[-1].split('.')[0]
+    # 构造转换后的jpg路径
+    jpg_path = './static/' + file_name + '.jpg'
+        
+    return jpg_path
 
 
 if __name__ == '__main__':
