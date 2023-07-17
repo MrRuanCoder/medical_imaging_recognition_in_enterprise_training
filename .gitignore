@@ -3,6 +3,8 @@
 /nettest/data/
 /back/model/
 /back/data/
+/back/__pycache__/
+/back/_pycache_/
 .idea
 *.zip
 *$py.class
