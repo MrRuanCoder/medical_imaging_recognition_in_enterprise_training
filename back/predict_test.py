@@ -24,6 +24,7 @@ import model_train
 import network_L3 as network
 
 from picture_test import data_preprocess_base
+from picture_test import data_preprocess_enhanced
 
 
 def test_alexnet(model_name, picture_path=None):
@@ -105,7 +106,7 @@ def data_load(size, picture=None, picture_mode: str = 'path'):
         dicomlist.append(picture)
         labels.append('0')
         # 读取图像矩阵
-        images = array([data_preprocess_base(pydicom.read_file(dcm).pixel_array, size) for dcm in dicomlist])
+        images = array([data_preprocess_enhanced(pydicom.read_file(dcm).pixel_array, size) for dcm in dicomlist])
     else:
         images = None
 
@@ -183,4 +184,4 @@ if __name__ == '__main__':
         elif i < 100:
             path_num = '0' + path_num
         path = path_base + path_num + path_last
-        test_alexnet('model/L1_model.pkl', path)
+        test_alexnet('model/resnet34-picture-enhance.pkl', path)
