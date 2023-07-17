@@ -255,6 +255,42 @@
         opacity: 0;
       }
     }
+
+    .grid-container {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      justify-items: center;
+      justify-content: center;
+      margin: 0 auto;
+      gap: 4mm;
+      margin-bottom: 4mm;
+
+    }
+
+    .grid-container>div {
+      max-width: 256px;
+      /* max-height: 256px; */
+      border-width: 1q;
+      border-style: dotted;
+      border-color: rgba(0, 20, 255, .5);
+      box-sizing: content-box;
+      border-radius: 2em;
+    }
+
+    .grid-container>div>p {
+      font-size: large;
+      padding-bottom: 9q;
+      min-width: 256px;
+    }
+
+    button {
+      border-radius: 1ch;
+    }
+
+    img {
+      border-radius: 1em;
+      cursor: pointer;
+    }
   </style>
 </head>
 
@@ -277,10 +313,11 @@
       <div id="result">
         <hr>
         <p class="result">识别结果</p>
-        <table>
+        <div class="grid-container"></div>
+        <!-- <table>
           <tr></tr>
           <tr></tr>
-        </table>
+        </table> -->
         <hr>
         <p class="result">下载结果</p>
         <button>有伪影</button><button>无伪影</button>
@@ -339,8 +376,8 @@
   const upload = document.getElementById('upload');
   const sideLi = document.querySelectorAll('#side>ul>li')
   const result = document.getElementById('result')
-  const resultTable = result.querySelector('table')
-  const resultTableTrs = resultTable.getElementsByTagName('tr');
+  const resultGrid = result.querySelector('.grid-container')
+  // const resultTableTrs = resultTable.getElementsByTagName('tr');
   const downloadButtons = result.getElementsByTagName('button')
   const imgShow = document.getElementById('imgShow')
   const ReceivedResult = [];
@@ -378,7 +415,7 @@
     }).then(e => e.json()).then(e => {
       result.style.display = 'block';
       ReceivedResult.length = 0;
-      resultTable.innerHTML = '<tr></tr><tr></tr>';
+      resultGrid.innerHTML = '';
       // for (let i of resultTableTrs) {
       //   i.innerHTML = ''
       // }
@@ -387,15 +424,20 @@
         ReceivedResult.push({ filePath: e.dcm_filenames[i].replace('\\', '/'), Artifact: e.predictoutput[i][0] })
       }
       setTimeout(() => {
+        // for (let i of ReceivedResult) {
+        //   const td1 = document.createElement('td')
+        //   td1.innerHTML = '<img src="static/' + getLastSegment('/', i.filePath).split('.')[0] + '.jpg">'
+        //   resultTableTrs[0].appendChild(td1)
+        //   const td2 = document.createElement('td')
+        //   td2.innerText = i.Artifact ? '有伪影' : '无伪影'
+        //   resultTableTrs[1].appendChild(td2)
+        // }
         for (let i of ReceivedResult) {
-          const td1 = document.createElement('td')
-          td1.innerHTML = '<img src="static/' + getLastSegment('/', i.filePath).split('.')[0] + '.jpg">'
-          resultTableTrs[0].appendChild(td1)
-          const td2 = document.createElement('td')
-          td2.innerText = i.Artifact ? '有伪影' : '无伪影'
-          resultTableTrs[1].appendChild(td2)
+          const div = document.createElement('div')
+          div.innerHTML = `<img src="static/${getLastSegment('/', i.filePath).split('.')[0]}.jpg"><p>${i.Artifact ? '有伪影' : '无伪影'}</p>`
+          resultGrid.appendChild(div)
         }
-        for (i of resultTable.getElementsByTagName('img')) {
+        for (i of resultGrid.getElementsByTagName('img')) {
           i.onclick = function (e) {
             const html = e.target;
             if (imgShow.classList.contains('imgNotShow')) {
@@ -443,7 +485,10 @@
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({ fileList: bodyArray })
-    }).then(e => e.text()).then(e => {
+    }).then(e => {
+      if (e.status != 200) throw new Error('下载失败')
+      return e.text()
+    }).then(e => {
       toggle('下载成功')
       open(e.substring(2))
     }).catch(e => {
@@ -466,7 +511,7 @@
       tip.style.display = "none";
       // }
     } else {
-      toggle('对不起,你上传的不是zip压缩文件');
+      toggle('对不起, 你上传的不是zip压缩文件');
       // button.disabled = true;
       // previewImage.style.display = 'none'
       fileInput.value = null;
