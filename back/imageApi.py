@@ -1,9 +1,10 @@
-
 from flask import jsonify, request, session
 from werkzeug.utils import secure_filename
 # from learnSQL import User, db  
 import os
+import time
 import zipfile
+import shutil
 from werkzeug.utils import secure_filename
 from flask import render_template
 from flask import send_file
@@ -61,7 +62,7 @@ def zipImage1():
     for(dcm_filename, i) in zip(dcm_filenames, range(length)):
         # predictoutput.append(output_alexnet('model/L1_model.pkl', dcm_filename))
         # print(output_alexnet('model/L1_model.pkl', dcm_filename))
-        tensor_output = output_alexnet('model/L2_model.pkl', dcm_filename)
+        tensor_output = output_alexnet('model/L3_resnet18_best_model.pkl', dcm_filename)
         predictoutput.append(tensor_output.tolist())
         image_deal_transfer(dcm_filename)
 
@@ -76,32 +77,64 @@ def zipDownload():
     #     './static/file3.txt'
     # ]
     
-    files = request.form.getlist('fileList')  # 获取前端请求中的文件列表
+    data = request.get_json()
+    files = data.get('fileList', [])  # 获取前端请求中的文件列表，默认为空列表
+
+    # print(files+'@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@')  不能打印列表？
 
     # 创建一个临时目录来保存待打包的文件
-    temp_dir = './temp'
+    temp_dir = f'./temp/{int(time.time())}'  # 使用时间戳创建一个唯一的文件夹路径
     os.makedirs(temp_dir, exist_ok=True)    #exist_ok存在是否会引发异常
 
-    # 复制文件到临时目录
-    for file in files:
-        file_name = file.split('/')[-1]  # 提取文件名
-        destination = os.path.join(temp_dir, file_name)
-        os.makedirs(os.path.dirname(destination), exist_ok=True)
-        os.system(f'cp {file} {destination}')
+    # # 复制文件到临时目录
+    # for file in files:
+    #     file_name = file.split('/')[-1]  # 提取文件名
+    #     destination = os.path.join(temp_dir, file_name)
+    #     os.makedirs(os.path.dirname(destination), exist_ok=True)
+    #     os.system(f'cp {file} {destination}')
 
-    # 创建zip文件
-    zip_file_path = './temp/files.zip'
+    # 复制DCM文件到临时目录
+    # dcm_files = []
+    # for file in files:
+    #     if file.endswith('.dcm'):
+    #         dcm_files.append(file)
+    #         file_name = file.split('/')[-1]  # 提取文件名
+    #         destination = os.path.join(temp_dir, file_name)
+    #         os.makedirs(os.path.dirname(destination), exist_ok=True)
+    #         shutil.copy2(file, destination)
+    for file in files:
+        if file.endswith('.dcm'):
+            file_name = file.split('/')[-1]  # 提取文件名
+            destination = os.path.join(temp_dir, file_name)
+            os.makedirs(os.path.dirname(destination), exist_ok=True)
+            shutil.copy2(file, destination)
+
+    # 创建以时间戳命名的ZIP文件
+    timestamp = str(int(time.time()))
+    zip_file_path = f'./temp/files_{timestamp}.zip'
     with zipfile.ZipFile(zip_file_path, 'w') as zip_file:
         for root, _, files in os.walk(temp_dir):
             for file in files:
                 file_path = os.path.join(root, file)
                 zip_file.write(file_path, os.path.relpath(file_path, temp_dir))
 
+    # # 创建zip文件
+    # zip_file_path = './temp/files.zip'
+    # with zipfile.ZipFile(zip_file_path, 'w') as zip_file:
+    #     for root, _, files in os.walk(temp_dir):
+    #         for file in files:
+    #             file_path = os.path.join(root, file)
+    #             zip_file.write(file_path, os.path.relpath(file_path, temp_dir))
+
     # 删除临时目录
-    os.system(f'rm -rf {temp_dir}')
+    shutil.rmtree(temp_dir)
 
     # 发送zip文件给前端
-    return send_file(zip_file_path, as_attachment=True, attachment_filename='files.zip')
+    # return send_file(zip_file_path, as_attachment=True, attachment_filename='files.zip')
+    #返回ZIP文件的相对路径
+    return zip_file_path
+    # relative_path = os.path.relpath(zip_file_path, './')
+    # return jsonify({'path': relative_path})
 
 def transformImage():
     image_path = '../opt/upload/00001.dcm'  # DICOM文件路径

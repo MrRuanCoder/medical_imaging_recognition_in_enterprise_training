@@ -20,7 +20,7 @@ current_dir = os.path.dirname(current_file)
 sys.path.append(current_dir)
 
 import model_train
-# from . import model_train
+
 import network_L3 as network
 
 from picture_test import data_preprocess_base
@@ -62,8 +62,8 @@ def test_alexnet(model_name, picture_path=None):
 
 def output_alexnet(model_name, picture_path=None):
     print('------ Testing Start ------')
-    model = network.initialize_model(backbone=model_train.backbone, pretrained=model_train.pretrained,
-                                     NUM_CLASS=model_train.NUM_CLASS)
+    model = network.initialize_model(backbone='resnet34', pretrained=False,
+                                     NUM_CLASS=2)
     model.load_state_dict(torch.load(model_name), False)
     test_pred = []
     test_true = []
