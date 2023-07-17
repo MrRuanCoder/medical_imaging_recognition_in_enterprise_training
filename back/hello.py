@@ -145,7 +145,7 @@ def zipImage1_():
     return zipImage1()
 
 @app.route('/api/download', methods=['POST', 'GET'])  
-def zipDownload():
+def zipDownload_():
     return zipDownload()
 
 ##########################################################################################################
