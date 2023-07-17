@@ -27,6 +27,7 @@
       margin: 0;
       padding: 0;
       user-select: none;
+      transition: .2s;
     }
 
     b {
@@ -179,8 +180,9 @@
       display: none;
     }
 
-    img {
+    #result>table>tbody:nth-child(1)>tr:nth-child(1)>td>img:nth-child(1) {
       /* max-width: 30%; */
+      cursor: pointer;
     }
 
     .result {
@@ -209,6 +211,49 @@
       margin: 0 9q;
       padding: 5q 9q;
       cursor: pointer;
+    }
+
+    .imgBigShow {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 100vmin;
+      width: 100vmax;
+      /* background-color: aliceblue; */
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      overflow: hidden;
+      background-size: 90vmin !important;
+    }
+
+    .imgNotShow {
+      display: none;
+    }
+
+    #imgShow {
+      transition: .3s;
+      z-index: 3;
+    }
+
+    @keyframes show {
+      from {
+        opacity: 0;
+      }
+
+      to {
+        opacity: 1;
+      }
+    }
+
+    @keyframes hidden {
+      from {
+        opacity: 1;
+      }
+
+      to {
+        opacity: 0;
+      }
     }
   </style>
 </head>
@@ -269,6 +314,7 @@
     </ul>
 
   </div>
+  <div class="imgNotShow" id="imgShow"></div>
 </body>
 <script>
   // onload = function () {
@@ -296,6 +342,7 @@
   const resultTable = result.querySelector('table')
   const resultTableTrs = resultTable.getElementsByTagName('tr');
   const downloadButtons = result.getElementsByTagName('button')
+  const imgShow = document.getElementById('imgShow')
   const ReceivedResult = [];
   // const frame = document.getElementsByClassName('frame')
   button.onclick = function () {
@@ -339,7 +386,6 @@
       for (let i = 0; i < e.dcm_filenames.length; i++) {
         ReceivedResult.push({ filePath: e.dcm_filenames[i].replace('\\', '/'), Artifact: e.predictoutput[i][0] })
       }
-      console.log(ReceivedResult);
       setTimeout(() => {
         for (let i of ReceivedResult) {
           const td1 = document.createElement('td')
@@ -348,6 +394,22 @@
           const td2 = document.createElement('td')
           td2.innerText = i.Artifact ? '有伪影' : '无伪影'
           resultTableTrs[1].appendChild(td2)
+        }
+        for (i of resultTable.getElementsByTagName('img')) {
+          i.onclick = function (e) {
+            const html = e.target;
+            if (imgShow.classList.contains('imgNotShow')) {
+              imgShow.style.background = `rgba(0, 0, 0,.5) url(${html.src}) no-repeat fixed center`;
+              imgShow.className = 'imgBigShow'
+              imgShow.style.animation = 'show .5s ease-in-out forwards'
+            }
+            else {
+              imgShow.className = 'imgNotShow'
+            }
+          }
+        }
+        for (let i = 0; i < downloadButtons.length; i++) {
+          downloadButtons[i].style.display = ReceivedResult.every(e => e.Artifact != i ^ 1) ? 'none' : 'inline-block'
         }
       })
     })
@@ -364,6 +426,11 @@
         tip.style.display = "inline-block";
       })
   }
+  imgShow.onclick = () => {
+    // imgShow.className == 'imgBigShow' && (imgShow.className = 'imgNotShow')
+    imgShow.style.animation = 'hidden .5s ease-in-out forwards'
+    setTimeout(() => imgShow.className == 'imgBigShow' && (imgShow.className = 'imgNotShow'), 500)
+  }
   function download (index) {
     const filterResult = ReceivedResult.filter(item => item.Artifact == index)
     const bodyArray = []
@@ -376,9 +443,9 @@
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({ fileList: bodyArray })
-    }).then(e => e.json()).then(e => {
+    }).then(e => e.text()).then(e => {
       toggle('下载成功')
-      open(e.path)
+      open(e)
     }).catch(e => {
       toggle('对不起, 下载失败')
       console.log(e);
