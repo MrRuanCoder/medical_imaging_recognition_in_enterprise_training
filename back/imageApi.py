@@ -83,28 +83,20 @@ def zipDownload():
     data = request.get_json()
     files = data.get('fileList', [])  # 获取前端请求中的文件列表，默认为空列表
 
-    # print(files+'@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@')  不能打印列表？
+    if len(files) == 1 and files[0].endswith('.dcm'):
+        # 当只有一个DCM文件时，复制到临时目录并返回该文件的相对路径
+        file = files[0]
+        file_name = file.split('/')[-1]  # 提取文件名
+        destination = f'./static/temp/{file_name}'
+        os.makedirs(os.path.dirname(destination), exist_ok=True)
+        shutil.copy2(file, destination)
+        return destination
 
     # 创建一个临时目录来保存待打包的文件
     temp_dir = f'./static/temp/{int(time.time())}'  # 使用时间戳创建一个唯一的文件夹路径
     os.makedirs(temp_dir, exist_ok=True)    #exist_ok存在是否会引发异常
 
     # # 复制文件到临时目录
-    # for file in files:
-    #     file_name = file.split('/')[-1]  # 提取文件名
-    #     destination = os.path.join(temp_dir, file_name)
-    #     os.makedirs(os.path.dirname(destination), exist_ok=True)
-    #     os.system(f'cp {file} {destination}')
-
-    # 复制DCM文件到临时目录
-    # dcm_files = []
-    # for file in files:
-    #     if file.endswith('.dcm'):
-    #         dcm_files.append(file)
-    #         file_name = file.split('/')[-1]  # 提取文件名
-    #         destination = os.path.join(temp_dir, file_name)
-    #         os.makedirs(os.path.dirname(destination), exist_ok=True)
-    #         shutil.copy2(file, destination)
     for file in files:
         if file.endswith('.dcm'):
             file_name = file.split('/')[-1]  # 提取文件名
