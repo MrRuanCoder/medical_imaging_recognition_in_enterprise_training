@@ -21,14 +21,14 @@ import matplotlib.pyplot as plt
 PATH = 'C:/Users/Ruan/Desktop/project/medical_imaging_recognition_in_enterprise_training/back/data/labels.csv'
 TEST_PATH = ''
 is_train = False  # True-训练模型  False-测试模型
-save_model_name = 'model/L1_model.pkl'
+save_model_name = 'model/resnet34-picture-enhance.pkl'
 device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
 # 训练参数设置
 SIZE = 224  # 图像进入网络的大小
 BATCH_SIZE = 32  # batch_size数
 NUM_CLASS = 2  # 分类数
-EPOCHS = 100  # 迭代次数
+EPOCHS = 1  # 迭代次数
 
 # 模型参数
 backbone = 'alexnet'

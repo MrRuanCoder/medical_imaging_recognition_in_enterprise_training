@@ -12,6 +12,9 @@ from imageApi import *
 from serverMachine import *
 from SQLiteDemo import query
 import traceback
+
+MODEL_CHOSEN_PATH = 'model/L3_resnet18_best_model.pkl'
+
 app = Flask(__name__)
 # Set the secret key to some random bytes. Keep this really secret!
 app.secret_key = '_5#y2L"F4Q8z\n\xec]/1'
@@ -24,6 +27,8 @@ app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=7)  # 配置7天有效
 # @ app.route("/")
 # def show_file():
 #     return app.send_static_file("index.html")
+
+
 
 @app.route('/')
 def mainPage():
