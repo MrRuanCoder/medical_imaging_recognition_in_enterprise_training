@@ -206,7 +206,7 @@
     </h2>
     <ul>
       <li>返回主页</li>
-      <li>历史记录</li>
+      <li style="display: none;">历史记录</li>
       <li>退出登录</li>
     </ul>
 
@@ -223,12 +223,17 @@
   const numInEveryPage = 5;
   const pagesButton = document.getElementsByClassName('page');
   pagesButton[0].onclick = () => {
-    pageIndex--;
+    if (--pageIndex < 0) {
+      pageIndex++;
+      return;
+    }
     loadContent();
   }
   pagesButton[1].onclick = () => {
-
-    pageIndex++;
+    if (++pageIndex > maxpageIndex) {
+      pageIndex--;
+      return
+    };
     loadContent();
   }
   function loadContent () {
@@ -264,7 +269,11 @@
       })
       const tr = document.createElement('tr')
       tr.innerHTML = `<td><input placeholder=姓名></td><td><input placeholder=密码></td><td>${selectStr}</td><td><button onclick="add(this)">添加</button></td>`
-      table.appendChild(tr)
+      table.appendChild(tr);
+      // console.log(pageIndex, maxpageIndex);
+      if (pageIndex > maxpageIndex) {
+        pagesButton[0].click();
+      }
     })
   }
   const toggle = params => {
@@ -305,7 +314,7 @@
     }).then(e => e.json()).then(e => {
       if (e.code == 200) {
         toggle('删除成功')
-        tableFetch()
+        tableFetch();
       }
       else {
         toggle('删除失败')
