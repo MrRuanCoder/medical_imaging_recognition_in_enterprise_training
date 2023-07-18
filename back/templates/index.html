@@ -267,8 +267,8 @@
     }
 
     .grid-container {
-      display: grid;
-      grid-template-columns: auto auto;
+      /* display: grid; */
+      grid-template-columns: auto;
       justify-items: center;
       justify-content: center;
       margin: 0 auto;
@@ -290,6 +290,11 @@
       border-color: rgba(0, 20, 255, .5);
       box-sizing: content-box;
       border-radius: 2em;
+      display: flex;
+      margin: 9q auto;
+      justify-content: center;
+      padding: 9q;
+      align-items: center;
     }
 
     #flex-container>div>p {
@@ -317,6 +322,27 @@
     #flex-container>div {
       width: 50%;
     }
+
+    input[type='checkbox'] {
+      transform: scale(6);
+      width: 1in;
+      cursor: pointer;
+    }
+
+    #flex-container>div>div>div>button {
+      margin-left: 9q;
+      border-radius: 1ch;
+      height: 1in;
+      padding: 0 9q;
+      cursor: pointer;
+    }
+
+    #result>button:nth-child(3) {
+      border-radius: 1ch;
+      height: 2cm;
+      padding: 0 9q;
+      cursor: pointer;
+    }
   </style>
 </head>
 
@@ -325,7 +351,7 @@
   <div id="main">
     <!-- <div class='frame'> -->
     <img id="previewImage">
-    <div id="fileButton"><input type="file" id="fileUpload">
+    <div id="fileButton"><input type="file" id="fileUpload" multiple>
       <br>
       <label for="fileUpload" id="tip">
         请上传zip压缩文件
@@ -339,24 +365,24 @@
       <div id="result">
         <hr>
         <p class="result">识别结果</p>
+        <button>批量下载</button>
         <div id="flex-container">
           <div>
             <p>有伪影</p>
             <hr>
-            <button>下载</button>
+            <!-- <button>下载</button> -->
             <div class="grid-container">
             </div>
           </div>
           <div>
             <p>无伪影</p>
             <hr>
-            <button>下载</button>
+            <!-- <button>下载</button> -->
             <div class="grid-container">
             </div>
           </div>
 
         </div>
-
         <!-- <table>
           <tr></tr>
           <tr></tr>
@@ -364,9 +390,7 @@
         <!-- <hr>
         <p class="result">下载结果</p>
         <button>有伪影</button><button>无伪影</button> -->
-
       </div>
-
       <!-- <hr> -->
       <!-- <p class="result">
         诊断推测: &nbsp;&nbsp;<span>94</span>% 患有<strong>阿尔茨海默病</strong>, <span>5</span>% 患有<strong>帕金森病</strong>,
@@ -422,9 +446,22 @@
   const resultFlex = result.querySelector('#flex-container')
   const gridContainers = resultFlex.querySelectorAll('.grid-container')
   // const resultTableTrs = resultTable.getElementsByTagName('tr');
-  const downloadButtons = result.getElementsByTagName('button')
+  const downloadButton = result.querySelector('button')
   const imgShow = document.getElementById('imgShow')
   const ReceivedResult = [];
+  downloadButton.onclick = () => {
+    const checkboxs = resultFlex.querySelectorAll('input[type="checkbox"]')
+    const downloadArray = []
+    for (let i of checkboxs) {
+      if (i.checked)
+        downloadArray.push(i.name)
+    }
+    if (downloadArray.length == 0) {
+      toggle('请先选择要下载的图片')
+      return
+    }
+    downloadFetch(downloadArray);
+  }
   // const frame = document.getElementsByClassName('frame')
   button.onclick = function () {
     result.style.display = 'none'
@@ -482,9 +519,13 @@
         // }
         for (let i of ReceivedResult) {
           const div = document.createElement('div')
-          div.innerHTML = `<img src="static/${getLastSubstring('.', getLastSegment('/', i.filePath))}.jpg">`
+          const src = `"static/${getLastSubstring('.', getLastSegment('/', i.filePath))}.jpg"`
+          div.innerHTML = `<input type="checkbox" name=${i.filePath}><img src=${src}><button>下载</button>`
           // resultFlex.appendChild(div)
           gridContainers[i.Artifact ^ 1].appendChild(div)
+          div.querySelector('button').onclick = () => {
+            downloadFetch([i.filePath])
+          }
         }
         for (i of resultFlex.getElementsByTagName('img')) {
           i.onclick = function (e) {
@@ -499,9 +540,9 @@
             }
           }
         }
-        for (let i = 0; i < downloadButtons.length; i++) {
-          downloadButtons[i].style.display = ReceivedResult.every(e => e.Artifact != i ^ 1) ? 'none' : 'inline-block'
-        }
+        // for (let i = 0; i < downloadButtons.length; i++) {
+        //   downloadButtons[i].style.display = ReceivedResult.every(e => e.Artifact != i ^ 1) ? 'none' : 'inline-block'
+        // }
       })
     })
       .catch(e => {
@@ -528,12 +569,31 @@
     for (let i of filterResult) {
       bodyArray.push(i.filePath)
     }
+    downloadFetch(bodyArray);
+    // fetch('api/download', {
+    //   method: 'POST',
+    //   headers: {
+    //     'Content-Type': 'application/json'
+    //   },
+    //   body: JSON.stringify({ fileList: bodyArray })
+    // }).then(e => {
+    //   if (e.status != 200) throw new Error('下载失败')
+    //   return e.text()
+    // }).then(e => {
+    //   toggle('下载成功')
+    //   open(e.substring(2))
+    // }).catch(e => {
+    //   toggle('对不起, 下载失败')
+    //   console.log(e);
+    // })
+  }
+  function downloadFetch (params) {
     fetch('api/download', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({ fileList: bodyArray })
+      body: JSON.stringify({ fileList: params })
     }).then(e => {
       if (e.status != 200) throw new Error('下载失败')
       return e.text()
@@ -545,8 +605,9 @@
       console.log(e);
     })
   }
-  downloadButtons[0].onclick = () => download(1)
-  downloadButtons[1].onclick = () => download(0)
+
+  // downloadButtons[0].onclick = () => download(1)
+  // downloadButtons[1].onclick = () => download(0)
   fileInput.onchange = function () {
     const file = fileInput.files[0]
     if (file && file.name.endsWith('.zip') && file.type === 'application/x-zip-compressed') {
