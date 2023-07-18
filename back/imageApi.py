@@ -42,7 +42,10 @@ def zipImage1():
     if zipfile.is_zipfile(upload_path):  # 判断是否为zip文件
         zf = zipfile.ZipFile(upload_path, 'r')  # 设置文件为可读
         stem, suffix = os.path.splitext(f.filename)  # 提取文件名称
-        target_dir = os.path.join(savepath, stem)  # 指定目录
+        # target_dir = os.path.join(savepath, stem)  # 指定目录
+        # 使用当前时间戳作为文件夹名
+        timestamp = str(int(time.time()))
+        target_dir = os.path.join(savepath, timestamp)  # 指定目录
         os.makedirs(target_dir, exist_ok=True)  # 创建目标目录
         zf.extractall(target_dir)  # 解压至指定目录
         zf.close()
