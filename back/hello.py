@@ -134,7 +134,7 @@ def getAll0():
 def user_update0():
     return user_update()
 
-# 删除用户
+# 删除用户  
 @app.route("/api/delete", methods=["DELETE"])
 def user_delete0():
     return user_delete()
@@ -149,6 +149,16 @@ def zipDownload_():
     return zipDownload()
 
 ##########################################################################################################
+# 允许访问的 IP 列表
+# allowed_ips = ["127.0.0.1", "10.203.98.45"]
+
+# IP 限制装饰器
+# @app.before_request
+# def restrict_ips():
+#     client_ip = request.remote_addr
+#     if client_ip not in allowed_ips:
+#         return "Access Denied", 403  # 返回 403 错误，表示禁止访问
+
 if __name__ == '__main__':
     db.init_app(app)
     with app.app_context():

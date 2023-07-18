@@ -42,7 +42,10 @@ def zipImage1():
     if zipfile.is_zipfile(upload_path):  # 判断是否为zip文件
         zf = zipfile.ZipFile(upload_path, 'r')  # 设置文件为可读
         stem, suffix = os.path.splitext(f.filename)  # 提取文件名称
-        target_dir = os.path.join(savepath, stem)  # 指定目录
+        # target_dir = os.path.join(savepath, stem)  # 指定目录
+        # 使用当前时间戳作为文件夹名
+        timestamp = str(int(time.time()))
+        target_dir = os.path.join(savepath, timestamp)  # 指定目录
         os.makedirs(target_dir, exist_ok=True)  # 创建目标目录
         zf.extractall(target_dir)  # 解压至指定目录
         zf.close()
@@ -80,28 +83,20 @@ def zipDownload():
     data = request.get_json()
     files = data.get('fileList', [])  # 获取前端请求中的文件列表，默认为空列表
 
-    # print(files+'@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@')  不能打印列表？
+    if len(files) == 1 and files[0].endswith('.dcm'):
+        # 当只有一个DCM文件时，复制到临时目录并返回该文件的相对路径
+        file = files[0]
+        file_name = file.split('/')[-1]  # 提取文件名
+        destination = f'./static/temp/{file_name}'
+        os.makedirs(os.path.dirname(destination), exist_ok=True)
+        shutil.copy2(file, destination)
+        return destination
 
     # 创建一个临时目录来保存待打包的文件
     temp_dir = f'./static/temp/{int(time.time())}'  # 使用时间戳创建一个唯一的文件夹路径
     os.makedirs(temp_dir, exist_ok=True)    #exist_ok存在是否会引发异常
 
     # # 复制文件到临时目录
-    # for file in files:
-    #     file_name = file.split('/')[-1]  # 提取文件名
-    #     destination = os.path.join(temp_dir, file_name)
-    #     os.makedirs(os.path.dirname(destination), exist_ok=True)
-    #     os.system(f'cp {file} {destination}')
-
-    # 复制DCM文件到临时目录
-    # dcm_files = []
-    # for file in files:
-    #     if file.endswith('.dcm'):
-    #         dcm_files.append(file)
-    #         file_name = file.split('/')[-1]  # 提取文件名
-    #         destination = os.path.join(temp_dir, file_name)
-    #         os.makedirs(os.path.dirname(destination), exist_ok=True)
-    #         shutil.copy2(file, destination)
     for file in files:
         if file.endswith('.dcm'):
             file_name = file.split('/')[-1]  # 提取文件名
