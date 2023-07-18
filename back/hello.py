@@ -153,6 +153,10 @@ def zipImage1_():
 def zipDownload_():
     return zipDownload()
 
+@app.route('/api/model', methods=['POST', 'GET'])
+def modelSelected_():
+    return modelSelected()
+
 ##########################################################################################################
 # 允许访问的 IP 列表
 # allowed_ips = ["127.0.0.1", "10.203.98.45"]
