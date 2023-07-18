@@ -260,7 +260,7 @@
 
     .grid-container {
       display: grid;
-      grid-template-columns: repeat(5, 1fr);
+      grid-template-columns: repeat(auto-fit, 256px);
       justify-items: center;
       justify-content: center;
       margin: 0 auto;
@@ -411,6 +411,7 @@
     //   }
     // }
     function getLastSegment (t, e) { const n = e.split(t); return n[n.length - 1] }
+    function getLastSubstring (t, n) { const i = n.split(t); return i.slice(0, i.length - 1).join(t) }
     fetch('api/file', {
       method: "POST",
       body: formData
@@ -436,7 +437,7 @@
         // }
         for (let i of ReceivedResult) {
           const div = document.createElement('div')
-          div.innerHTML = `<img src="static/${getLastSegment('/', i.filePath).split('.')[0]}.jpg"><p>${i.Artifact ? '有伪影' : '无伪影'}</p>`
+          div.innerHTML = `<img src="static/${getLastSubstring('.', getLastSegment('/', i.filePath))}.jpg"><p>${i.Artifact ? '有伪影' : '无伪影'}</p>`
           resultGrid.appendChild(div)
         }
         for (i of resultGrid.getElementsByTagName('img')) {
