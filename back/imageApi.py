@@ -137,6 +137,7 @@ def modelSelected():
     pass
 
 def transformImage():
+    pass
     image_path = '../opt/upload/00001.dcm'  # DICOM文件路径
     dicom_data = pydicom.dcmread(image_path)
     image_data = dicom_data.pixel_array.tobytes()
