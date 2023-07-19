@@ -134,7 +134,25 @@ def zipDownload():
 
 
 def modelSelected():
-    pass
+    global MODEL_CHOSEN_PATH #提示为全局变量
+    data = request.get_json()
+    model = data.get('model')
+    if model == 1:
+        MODEL_CHOSEN_PATH = 'model/L3_resnet18_best_model.pkl'
+    elif model == 2:
+        MODEL_CHOSEN_PATH = 'model/resnet34-picture-enhance.pkl'
+    elif model == 3:
+        MODEL_CHOSEN_PATH = 'model/vgg11-picture-enhance.pkl'
+    elif model == 4:
+        MODEL_CHOSEN_PATH = 'densenet-picture-enhance.pkl'
+    else: 
+        return '没有此模型'
+    ...
+    return jsonify(msg='模型选择成功')
+
+def modelName():
+    global MODEL_CHOSEN_PATH
+    return MODEL_CHOSEN_PATH
 
 def transformImage():
     pass
