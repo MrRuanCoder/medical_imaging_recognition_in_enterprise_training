@@ -7,7 +7,7 @@ from pylab import *
 from sklearn.model_selection import train_test_split
 from torchvision.transforms import transforms
 
-# from picture_test import data_preprocess_base
+from picture_test import data_preprocess_enhanced
 # from .picture_test import data_preprocess_base
 import picture_test
 
@@ -18,7 +18,7 @@ SIZE = 224  # 图像进入网络的大小
 BATCH_SIZE = 32  # batch_size数
 NUM_CLASS = 2  # 分类数
 EPOCHS = 50  # 迭代次数
-random_seed = 321  # 随机种子
+random_seed = 21  # 随机种子
 ratio = 0.1  # 验证集、测试集比例
 
 
@@ -51,7 +51,7 @@ def data_load(path, test_path, size, is_train):
         labels.append(label)
     labels = np.array(labels)  # 图像标签 n*1
     # 读取图像矩阵
-    images = array([picture_test.data_preprocess_base(pydicom.read_file(dcm).pixel_array, size) for dcm in dicomlist])
+    images = array([data_preprocess_enhanced(pydicom.read_file(dcm).pixel_array, size) for dcm in dicomlist])
     f.close()
 
     # (2)划分数据集

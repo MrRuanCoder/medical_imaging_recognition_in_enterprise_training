@@ -16,7 +16,7 @@ from PIL import Image
 
 from predict_test import test_alexnet, output_alexnet
 from picture_test import image_deal_transfer 
-
+from hello import MODEL_CHOSEN_PATH
 
 #单个图像处理
 def singleImage():
@@ -65,7 +65,7 @@ def zipImage1():
     for(dcm_filename, i) in zip(dcm_filenames, range(length)):
         # predictoutput.append(output_alexnet('model/L1_model.pkl', dcm_filename))
         # print(output_alexnet('model/L1_model.pkl', dcm_filename))
-        tensor_output = output_alexnet('model/L3_resnet18_best_model.pkl', dcm_filename)
+        tensor_output = output_alexnet(MODEL_CHOSEN_PATH, dcm_filename)
         predictoutput.append(tensor_output.tolist())
         image_deal_transfer(dcm_filename)
 
@@ -132,7 +132,12 @@ def zipDownload():
     # relative_path = os.path.relpath(zip_file_path, './')
     # return jsonify({'path': relative_path})
 
+
+def modelSelected():
+    pass
+
 def transformImage():
+    pass
     image_path = '../opt/upload/00001.dcm'  # DICOM文件路径
     dicom_data = pydicom.dcmread(image_path)
     image_data = dicom_data.pixel_array.tobytes()
