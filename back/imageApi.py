@@ -14,7 +14,7 @@ from io import BytesIO
 import numpy as np
 from PIL import Image
 
-from predict_test import test_alexnet, output_alexnet
+from predict_test import test_alexnet, output_alexnet, predict_enhanced
 from picture_test import image_deal_transfer 
 from hello import MODEL_CHOSEN_PATH
 
@@ -65,7 +65,9 @@ def zipImage1():
     for(dcm_filename, i) in zip(dcm_filenames, range(length)):
         # predictoutput.append(output_alexnet('model/L1_model.pkl', dcm_filename))
         # print(output_alexnet('model/L1_model.pkl', dcm_filename))
-        tensor_output = output_alexnet(MODEL_CHOSEN_PATH, dcm_filename)
+        # tensor_output = output_alexnet(MODEL_CHOSEN_PATH, dcm_filename)
+        tensor_output = predict_enhanced( dcm_filename, MODEL_CHOSEN_PATH)
+        # tensor_output=str(tensor_output)
         predictoutput.append(tensor_output.tolist())
         image_deal_transfer(dcm_filename)
 
