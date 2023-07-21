@@ -14,9 +14,9 @@ from io import BytesIO
 import numpy as np
 from PIL import Image
 
-from predict_test import test_alexnet, output_alexnet, predict_enhanced
+from predict_test import test_alexnet, output_alexnet, predict_enhanced, predict_enhanced_output
 from picture_test import image_deal_transfer 
-from hello import MODEL_CHOSEN_PATH
+from hello import MODEL_CHOSEN_PATH, MODEL_SELECTED
 
 #单个图像处理
 def singleImage():
@@ -27,6 +27,8 @@ def singleImage():
         os.makedirs(savepath)
 
 def zipImage1():
+    global MODEL_CHOSEN_PATH
+    global MODEL_SELECTED
     f = request.files['file']
 
     savepath = "./opt/upload/"
@@ -66,7 +68,7 @@ def zipImage1():
         # predictoutput.append(output_alexnet('model/L1_model.pkl', dcm_filename))
         # print(output_alexnet('model/L1_model.pkl', dcm_filename))
         # tensor_output = output_alexnet(MODEL_CHOSEN_PATH, dcm_filename)
-        tensor_output = predict_enhanced( dcm_filename, MODEL_CHOSEN_PATH)
+        tensor_output = predict_enhanced_output( dcm_filename, MODEL_CHOSEN_PATH, MODEL_SELECTED)
         # tensor_output=str(tensor_output)
         predictoutput.append(tensor_output.tolist())
         image_deal_transfer(dcm_filename)
@@ -137,20 +139,24 @@ def zipDownload():
 
 def modelSelected():
     global MODEL_CHOSEN_PATH #提示为全局变量
+    global MODEL_SELECTED
+    # return jsonify(msg='模型选择成功', model=MODEL_SELECTED)
     data = request.get_json()
+    # return jsonify(msg='模型选择成功', data=data)
     model = data.get('model')
-    if model == 1:
-        MODEL_CHOSEN_PATH = 'model/L3_resnet18_best_model.pkl'
-    elif model == 2:
+    if model == '1':
         MODEL_CHOSEN_PATH = 'model/resnet34-picture-enhance.pkl'
-    elif model == 3:
+        MODEL_SELECTED = 'resnet34'
+    elif model == '2':
         MODEL_CHOSEN_PATH = 'model/vgg11-picture-enhance.pkl'
-    elif model == 4:
+        MODEL_SELECTED = 'vgg11'
+    elif model == '3':
         MODEL_CHOSEN_PATH = 'densenet-picture-enhance.pkl'
+        MODEL_SELECTED = 'densenet'
     else: 
         return '没有此模型'
     ...
-    return jsonify(msg='模型选择成功')
+    return jsonify(msg='模型选择成功', model=MODEL_SELECTED)
 
 def modelName():
     global MODEL_CHOSEN_PATH

@@ -21,7 +21,7 @@ import matplotlib.pyplot as plt
 PATH = 'C:/Users/Ruan/Desktop/project/medical_imaging_recognition_in_enterprise_training/back/data/labels.csv'
 TEST_PATH = ''
 is_train = False  # True-训练模型  False-测试模型
-save_model_name = 'model/L1_model.pkl'
+save_model_name = 'model/densenet-picture-enhance.pkl'
 device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
 # 训练参数设置
@@ -31,7 +31,7 @@ NUM_CLASS = 2  # 分类数
 EPOCHS = 100  # 迭代次数
 
 # 模型参数
-backbone = 'resnet34'   # alexnet, resnet18, resnet34, resnet50, resnet101, vgg11, vgg16, vgg19, densenet
+backbone = 'densenet'   # alexnet, resnet18, resnet34, resnet50, resnet101, vgg11, vgg16, vgg19, densenet
 pretrained = False  
 
 # 进入工程路径并新建文件夹

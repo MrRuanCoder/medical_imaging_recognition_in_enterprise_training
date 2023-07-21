@@ -94,7 +94,38 @@ def predict_enhanced(picture_path: str, model_path: str):
 
     return predict_result
 
+def predict_enhanced_output(picture_path: str, model_path: str, model_name: str):
+    picture_path = [picture_path]
+    
+    # Check if CUDA (GPU) is available, else use CPU
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
+    with torch.no_grad():
+        model = network.initialize_model(backbone=model_name, pretrained=False, NUM_CLASS=2)
+        model.load_state_dict(torch.load(model_path, map_location=device))  # Load model on the same device
+        model.eval()
+
+        images = []
+        for p_path in picture_path:
+            dcm = pydicom.read_file(p_path).pixel_array
+            image = data_preprocess_enhanced(dcm, 224)
+            images.append(image)
+        images = np.array(images)
+
+        # Data preprocessing using torchvision transforms
+        predict_data_transform = transforms.Compose([
+            transforms.RandomHorizontalFlip(),
+            transforms.RandomRotation((0, 180), expand=False),
+            transforms.ToTensor()
+        ])
+        
+        tensor_list = [predict_data_transform(Image.fromarray(np.uint8(img))) for img in images]
+        inputs = torch.stack(tensor_list).to(device)  # Move inputs to the same device as the model
+
+        output = model(inputs)
+        _, predict_result = torch.max(output.data, 1)
+
+    return predict_result
 
 def test_alexnet(model_name, picture_path=None):
     print('------ Testing Start ------')
