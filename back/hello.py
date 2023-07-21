@@ -13,7 +13,8 @@ from serverMachine import *
 from SQLiteDemo import query
 import traceback
 
-MODEL_CHOSEN_PATH = 'model/L3_resnet18_best_model.pkl'
+MODEL_CHOSEN_PATH = 'model/resnet34-picture-enhance.pkl'
+MODEL_SELECTED= 'resnet34'
 
 app = Flask(__name__)
 # Set the secret key to some random bytes. Keep this really secret!
@@ -160,6 +161,10 @@ def modelSelected_():
 @app.route('/api/modelName', methods=['POST', 'GET'])
 def modelName_():
     return modelName()
+
+# @app.route('/api/modelselect', methods=['POST', 'GET'])
+# def modelSelected_():
+#     return modelSelected()
 
 ##########################################################################################################
 # 允许访问的 IP 列表
