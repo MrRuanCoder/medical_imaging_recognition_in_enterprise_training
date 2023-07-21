@@ -31,8 +31,8 @@ NUM_CLASS = 2  # 分类数
 EPOCHS = 100  # 迭代次数
 
 # 模型参数
-backbone = 'alexnet'
-pretrained = False
+backbone = 'resnet34'   # alexnet, resnet18, resnet34, resnet50, resnet101, vgg11, vgg16, vgg19, densenet
+pretrained = False  
 
 # 进入工程路径并新建文件夹
 os.chdir(os.path.dirname(os.path.abspath(__file__)))  # 进入工程路径
@@ -187,12 +187,12 @@ if __name__ == '__main__':
     else:
         run_predict(save_model_name, './data/images/00163.dcm')
 
-# 保存模型
-    model_name = 'model/L3_resnet18_best_model.pkl'
-    torch.save(model.state_dict(), 'C:/Users/Ruan/Desktop/project/medical_imaging_recognition_in_enterprise_training/back/model/L3_resnet18_best_model.pkl')
+# # 保存模型
+#     model_name = 'model/L3_resnet18_best_model.pkl'
+#     torch.save(model.state_dict(), 'C:/Users/Ruan/Desktop/project/medical_imaging_recognition_in_enterprise_training/back/model/L3_resnet18_best_model.pkl')
 
-# 加载模型
-    model.load_state_dict(torch.load(model_name), False)
+# # 加载模型
+#     model.load_state_dict(torch.load(model_name), False)
 
 # image=Image.open(image_path)
 # print(image)
