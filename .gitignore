@@ -154,3 +154,10 @@ back/first.db
 back/__pycache__
 back/templates/manager.html
 heidisql.lnk
+*.map
+*.exe
+*.dll
+*.pdb
+*.ilk
+*.db
+*.js.LICENSE.txt

@@ -1,7 +1,7 @@
 from flask import jsonify, request, session
 from learnSQL import User, db   #导入数据库模型类和数据库对象
 from SQLiteDemo import SQLiteGetAll, modify, add, delete
-
+import traceback
 
 # 创建用户 (增)
 def user_add():
@@ -30,8 +30,8 @@ def user_add():
 #获得所有用户（查所有）
 def getAll():
     try:
-        if session['permission'] != '0':
-            return  jsonify(code=400, msg="无权限进行操作")
+        # if session['permission'] != '0':
+        #     return  jsonify(code=400, msg="无权限进行操作")
 
         # users = User.query.all()  # 查询数据库中所有用户
         users = SQLiteGetAll()
@@ -49,6 +49,7 @@ def getAll():
         return jsonify(users=user_list)
     except Exception as e:
         print(e)
+        traceback.print_exception(type(e), e, e.__traceback__)
         return jsonify(code=400, msg="获取用户列表失败")
     
 #修改用户(改)
