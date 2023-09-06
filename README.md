@@ -1,3 +1,6 @@
+# Medical_imaging_Recognition_in_Enterprise_Training
+基于flask和react前后端框架和深度学习算法所搭建的医疗影像识别web应用
+
 | 请求方式 | 说明                           | RequestBody                                                  | url路径                 | 使用flask中的session cookie | ResponseBody                                                 | 备注                                               |
 | -------- | ------------------------------ | ------------------------------------------------------------ | ----------------------- | --------------------------- | ------------------------------------------------------------ | -------------------------------------------------- |
 | POST     | 验证登录                       | {username:"\u5f20\u533b\u751f",pwd:"aabbcc",remember:0}      | /api/login              | 无                          | 200状态码: {userName:"\u5f20\u533b\u751f",permission:0} 或   200状态码: {userName:"\u5f20\u533b\u751f",permission:1}或  200状态码: {userName:"\u5f20\u533b\u751f",permission:2}或  401状态码 | ResponseBody需要返回utf-8编码后的值,避免编码错乱   |
